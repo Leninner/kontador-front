@@ -52,3 +52,8 @@ export default tseslint.config({
   },
 })
 ```
+
+# Useful links
+
+https://www.kibo-ui.com/components/kanban
+https://ui.shadcn.com/docs/theming
