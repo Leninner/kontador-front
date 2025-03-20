@@ -16,3 +16,4 @@ npm run dev
 
 https://www.kibo-ui.com/components/kanban
 https://ui.shadcn.com/docs/theming
+https://ui.shadcn.com/blocks/sidebar
