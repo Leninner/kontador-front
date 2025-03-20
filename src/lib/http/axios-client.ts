@@ -8,6 +8,14 @@ export class AxiosHttpClient implements HttpClient {
     this.client = axios.create(config);
   }
 
+  addRequestInterceptor(onFulfilled: (config: any) => any, onRejected?: (error: any) => any) {
+    return this.client.interceptors.request.use(onFulfilled, onRejected);
+  }
+
+  addResponseInterceptor(onFulfilled: (response: any) => any, onRejected?: (error: any) => any) {
+    return this.client.interceptors.response.use(onFulfilled, onRejected);
+  }
+
   private transformResponse<T>(response: AxiosResponse<T>): HttpResponse<T> {
     return {
       data: response.data,
