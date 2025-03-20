@@ -3,6 +3,12 @@ interface LoginCredentials {
   password: string;
 }
 
+interface RegisterCredentials {
+  name: string;
+  email: string;
+  password: string;
+}
+
 interface User {
   id: string;
   email: string;
@@ -37,6 +43,29 @@ export const authService = {
     return {
       success: false,
       error: 'Invalid credentials'
+    };
+  },
+
+  register: async (credentials: RegisterCredentials): Promise<AuthResponse> => {
+    // Mock delay to simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Mock validation
+    if (credentials.email === 'test@example.com') {
+      return {
+        success: false,
+        error: 'Email already exists'
+      };
+    }
+
+    return {
+      success: true,
+      token: 'mock-jwt-token',
+      user: {
+        id: '2',
+        email: credentials.email,
+        name: credentials.name
+      }
     };
   },
 

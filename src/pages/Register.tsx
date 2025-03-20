@@ -1,8 +1,9 @@
 import { GalleryVerticalEnd } from 'lucide-react';
-import { LoginForm } from '../components/login-form';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { RegisterForm } from '../components/register-form';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { authService } from '../services/auth/auth.service';
 import { useAuthStore } from '@/store/useAuthStore';
+import { Link } from 'react-router-dom';
 
 interface LocationState {
 	from?: {
@@ -10,13 +11,13 @@ interface LocationState {
 	};
 }
 
-export const Login = () => {
+export const Register = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const login = useAuthStore((state) => state.login);
 
-	const handleLogin = async (email: string, password: string) => {
-		const response = await authService.login({ email, password });
+	const handleRegister = async (name: string, email: string, password: string) => {
+		const response = await authService.register({ name, email, password });
 
 		if (response.success && response.token && response.user) {
 			login(response.user, response.token);
@@ -38,7 +39,13 @@ export const Login = () => {
 				</div>
 				<div className="flex flex-1 items-center justify-center">
 					<div className="w-full max-w-xs">
-						<LoginForm onSubmit={handleLogin} />
+						<RegisterForm onSubmit={handleRegister} />
+						<div className="mt-4 text-center text-sm">
+							Ya tienes una cuenta?{' '}
+							<Link to="/login" className="text-primary underline">
+								Ingresar
+							</Link>
+						</div>
 					</div>
 				</div>
 			</div>

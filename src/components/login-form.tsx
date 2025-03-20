@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Link } from 'react-router-dom';
 
 interface LoginFormProps {
   onSubmit: (email: string, password: string) => Promise<void>;
@@ -60,9 +61,9 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
       </div>
       <div className="text-center text-sm">
         No tienes una cuenta?{" "}
-        <a href="#" className="underline underline-offset-4">
+        <Link to="/register" className="text-primary underline">
           Registrate
-        </a>
+        </Link>
       </div>
     </form>
   )
