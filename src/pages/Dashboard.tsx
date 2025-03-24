@@ -21,11 +21,11 @@ export const Dashboard = () => {
 		<div className="p-6">
 			<div className="flex items-center justify-between">
 				<div>
-					<h1 className="text-2xl font-bold">Dashboard</h1>
-					<p className="mt-4">Welcome, {user?.name}!</p>
+					<h1 className="text-2xl font-bold">Panel de control</h1>
+					<p className="mt-4">Bienvenido, {user?.name}!</p>
 				</div>
 				<Button variant="outline" onClick={handleLogout}>
-					Logout
+					Cerrar sesión
 				</Button>
 			</div>
 		</div>
