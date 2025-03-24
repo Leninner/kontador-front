@@ -7,6 +7,7 @@ import { Dashboard } from './pages/Dashboard';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { PublicRoute } from './components/auth/PublicRoute';
 import { Toaster } from './components/ui/sonner.tsx'
+import { CustomersPage } from './pages/Customers';
 
 const App = () => {
   return (
@@ -33,6 +34,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/customers"
+          element={
+            <ProtectedRoute>
+              <CustomersPage />
             </ProtectedRoute>
           }
         />
