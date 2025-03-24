@@ -7,7 +7,7 @@ import {
 	Map,
 	PieChart,
 	Send,
-	Settings2,
+	Users,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -23,13 +23,11 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { useAuthStore } from "../store/useAuthStore"
+import { IUser } from "../common/interfaces/auth.interface"
+import { Link } from "react-router-dom"
 
 const data = {
-	user: {
-		name: "shadcn",
-		email: "m@example.com",
-		avatar: "/avatars/shadcn.jpg",
-	},
 	navMain: [
 		{
 			title: "Dashboard",
@@ -38,27 +36,9 @@ const data = {
 			isActive: true,
 		},
 		{
-			title: "Settings",
-			url: "#",
-			icon: Settings2,
-			items: [
-				{
-					title: "General",
-					url: "#",
-				},
-				{
-					title: "Team",
-					url: "#",
-				},
-				{
-					title: "Billing",
-					url: "#",
-				},
-				{
-					title: "Limits",
-					url: "#",
-				},
-			],
+			title: "Clientes",
+			url: "/customers",
+			icon: Users,
 		},
 	],
 	navSecondary: [
@@ -93,13 +73,15 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+	const { user } = useAuthStore();
+
 	return (
 		<Sidebar variant="inset" {...props}>
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<SidebarMenuButton size="lg" asChild>
-							<a href="#">
+							<Link to="/dashboard">
 								<div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
 									<Command className="size-4" />
 								</div>
@@ -107,7 +89,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 									<span className="truncate font-medium">Kontador</span>
 									<span className="truncate text-xs">Enterprise</span>
 								</div>
-							</a>
+							</Link>
 						</SidebarMenuButton>
 					</SidebarMenuItem>
 				</SidebarMenu>
@@ -118,7 +100,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				<NavSecondary items={data.navSecondary} className="mt-auto" />
 			</SidebarContent>
 			<SidebarFooter>
-				<NavUser user={data.user} />
+				<NavUser user={user as IUser} />
 			</SidebarFooter>
 		</Sidebar>
 	)

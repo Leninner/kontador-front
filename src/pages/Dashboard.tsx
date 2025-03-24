@@ -1,33 +1,33 @@
-import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
+import { SidebarInset } from '../components/ui/sidebar';
+import { Separator } from '@radix-ui/react-separator';
 
 export const Dashboard = () => {
-	const navigate = useNavigate();
-	const { user, logout } = useAuthStore();
+	const { user } = useAuthStore();
 
-	const handleLogout = async () => {
-		try {
-			await logout();
-			toast.success('Cerraste sesión correctamente');
-			navigate('/login');
-		} catch {
-			toast.error('Error al cerrar sesión');
-		}
-	};
 
 	return (
-		<div className="p-6">
-			<div className="flex items-center justify-between">
-				<div>
-					<h1 className="text-2xl font-bold">Panel de control</h1>
-					<p className="mt-4">Bienvenido, {user?.name}!</p>
+		<SidebarInset>
+			<div className="p-6">
+				<header className="flex h-16 shrink-0 items-center gap-2">
+					<div className="flex items-center gap-2 px-4">
+						<div>
+							<h1 className="text-2xl font-bold">Panel de control</h1>
+							<p className="mt-4">Bienvenido, {user?.name}!</p>
+						</div>
+
+						<Separator orientation="vertical" className="mr-2 h-4" />
+					</div>
+				</header>
+				<div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+					<div className="grid auto-rows-min gap-4 md:grid-cols-3">
+						<div className="aspect-video rounded-xl bg-muted/50" />
+						<div className="aspect-video rounded-xl bg-muted/50" />
+						<div className="aspect-video rounded-xl bg-muted/50" />
+					</div>
+					<div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
 				</div>
-				<Button variant="outline" onClick={handleLogout}>
-					Cerrar sesión
-				</Button>
 			</div>
-		</div>
+		</SidebarInset>
 	);
 }; 
