@@ -1,16 +1,20 @@
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '@/services/auth/auth.service';
+import { toast } from 'sonner';
 
 export const Dashboard = () => {
 	const navigate = useNavigate();
 	const { user, logout } = useAuthStore();
 
 	const handleLogout = async () => {
-		await authService.logout();
-		logout();
-		navigate('/login');
+		try {
+			await logout();
+			toast.success('Cerraste sesión correctamente');
+			navigate('/login');
+		} catch {
+			toast.error('Error al cerrar sesión');
+		}
 	};
 
 	return (

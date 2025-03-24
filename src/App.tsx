@@ -6,6 +6,7 @@ import { Register } from './pages/Register';
 import { Dashboard } from './pages/Dashboard';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { PublicRoute } from './components/auth/PublicRoute';
+import { Toaster } from './components/ui/sonner.tsx'
 
 const App = () => {
   return (
@@ -37,6 +38,7 @@ const App = () => {
         />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
       </Routes>
+      <Toaster richColors closeButton position="top-right" />
     </Router>
   );
 };

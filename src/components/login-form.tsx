@@ -56,7 +56,7 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
           />
         </div>
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? 'Signing in...' : 'Sign in'}
+          {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
         </Button>
       </div>
       <div className="text-center text-sm">

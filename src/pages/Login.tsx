@@ -3,6 +3,8 @@ import { LoginForm } from '../components/login-form';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { authService } from '../services/auth/auth.service';
 import { useAuthStore } from '@/store/useAuthStore';
+import { toast } from 'sonner';
+import { AxiosError } from 'axios';
 
 interface LocationState {
 	from?: {
@@ -10,18 +12,57 @@ interface LocationState {
 	};
 }
 
+interface AuthData {
+	user: {
+		id: string;
+		name: string;
+		email: string;
+	};
+	token: string;
+}
+
+interface SuccessResponse {
+	success: true;
+	data: AuthData;
+}
+
+interface ErrorResponse {
+	statusCode: number;
+	error: string;
+	message: string | string[];
+}
+
+type ApiResponse = SuccessResponse | ErrorResponse;
+
 export const Login = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const login = useAuthStore((state) => state.login);
 
 	const handleLogin = async (email: string, password: string) => {
-		const response = await authService.login({ email, password });
+		try {
+			const response = await authService.login({ email, password }) as ApiResponse;
 
-		if (response.success && response.token && response.user) {
-			login(response.user, response.token);
+			if ('statusCode' in response) {
+				toast.error('Error al iniciar sesión');
+				return;
+			}
+
+			await login({ email, password });
 			const from = (location.state as LocationState)?.from?.pathname || '/dashboard';
+			toast.success('Inicio de sesión exitoso');
 			navigate(from, { replace: true });
+		} catch (error) {
+			const err = error as AxiosError<ErrorResponse>;
+			if (err.response?.data.message) {
+				toast.error('Error al iniciar sesión', {
+					description: Array.isArray(err.response?.data.message) ? err.response?.data.message[0] : err.response?.data.message
+				});
+			} else {
+				toast.error('Ocurrió un error inesperado', {
+					description: 'Por favor, intenta nuevamente'
+				});
+			}
 		}
 	};
 

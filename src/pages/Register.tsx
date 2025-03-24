@@ -1,9 +1,9 @@
 import { GalleryVerticalEnd } from 'lucide-react';
 import { RegisterForm } from '../components/register-form';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { authService } from '../services/auth/auth.service';
 import { useAuthStore } from '@/store/useAuthStore';
-import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 
 interface LocationState {
 	from?: {
@@ -11,18 +11,63 @@ interface LocationState {
 	};
 }
 
+interface AuthData {
+	user: {
+		id: string;
+		name: string;
+		email: string;
+	};
+	token: string;
+}
+
+interface SuccessResponse {
+	success: true;
+	data: AuthData;
+}
+
+interface ErrorResponse {
+	success: false;
+	error: {
+		message: string;
+		code: string;
+	};
+}
+
+type ApiResponse = SuccessResponse | ErrorResponse;
+
 export const Register = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const login = useAuthStore((state) => state.login);
 
 	const handleRegister = async (name: string, email: string, password: string) => {
-		const response = await authService.register({ name, email, password });
+		try {
+			const response = await authService.register({ name, email, password }) as ApiResponse;
 
-		if (response.success && response.token && response.user) {
-			login(response.user, response.token);
+			if (!response.success) {
+				toast.error('Registration failed', {
+					description: response.error.message
+				});
+				return;
+			}
+
+			await login({ email, password });
 			const from = (location.state as LocationState)?.from?.pathname || '/dashboard';
+			toast.success('Registration successful', {
+				description: 'Welcome to Kontador!'
+			});
 			navigate(from, { replace: true });
+		} catch (error) {
+			const err = error as ErrorResponse;
+			if (err.error?.message) {
+				toast.error('Registration failed', {
+					description: err.error.message
+				});
+			} else {
+				toast.error('Registration failed', {
+					description: 'An unexpected error occurred'
+				});
+			}
 		}
 	};
 

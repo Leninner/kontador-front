@@ -14,7 +14,8 @@ export const authService = {
     return response.data;
   },
 
-  logout: async (): Promise<void> => {
-    await httpClient.post(`${BASE_URL}/logout`);
+  logout: async (): Promise<{ success: boolean }> => {
+    const response = await httpClient.post<{ success: boolean }>(`${BASE_URL}/logout`);
+    return response.data;
   },
 }; 

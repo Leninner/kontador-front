@@ -68,7 +68,6 @@ export const useAuthStore = create<AuthState>()(
       logout: async () => {
         try {
           set({ isLoading: true, error: null });
-          await authService.logout();
           set({
             user: null,
             token: null,
