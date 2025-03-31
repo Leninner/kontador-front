@@ -32,15 +32,19 @@ import {
 	TableRow,
 } from "@/components/ui/table"
 import { Customer } from "./customers.interface"
+import { useNavigate } from "react-router-dom"
 
-export function DataTable({ data, columns }: { data: Customer[], columns: ColumnDef<Customer>[] }) {
+interface DataTableProps {
+	data: Customer[]
+	columns: ColumnDef<Customer>[]
+	isLoading?: boolean
+}
+
+export function DataTable({ data, columns, isLoading }: DataTableProps) {
 	const [sorting, setSorting] = React.useState<SortingState>([])
-	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-		[]
-	)
-	const [columnVisibility, setColumnVisibility] =
-		React.useState<VisibilityState>({})
-	const [rowSelection, setRowSelection] = React.useState({})
+	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+	const navigate = useNavigate()
 
 	const table = useReactTable({
 		data,
@@ -52,12 +56,10 @@ export function DataTable({ data, columns }: { data: Customer[], columns: Column
 		getSortedRowModel: getSortedRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
 		onColumnVisibilityChange: setColumnVisibility,
-		onRowSelectionChange: setRowSelection,
 		state: {
 			sorting,
 			columnFilters,
 			columnVisibility,
-			rowSelection,
 		},
 	})
 
@@ -75,12 +77,12 @@ export function DataTable({ data, columns }: { data: Customer[], columns: Column
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button variant="outline" className="ml-auto">
-							Columns <ChevronDown />
+							Columnas <ChevronDown />
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
 						{table
-							.getAllColumns()
+							.getAllFlatColumns()
 							.filter((column) => column.getCanHide())
 							.map((column) => {
 								return (
@@ -120,11 +122,24 @@ export function DataTable({ data, columns }: { data: Customer[], columns: Column
 						))}
 					</TableHeader>
 					<TableBody>
-						{table.getRowModel().rows?.length ? (
+						{isLoading ? (
+							<TableRow>
+								<TableCell
+									colSpan={columns.length}
+									className="h-24 text-center"
+								>
+									Loading...
+								</TableCell>
+							</TableRow>
+						) : table.getRowModel().rows?.length ? (
 							table.getRowModel().rows.map((row) => (
 								<TableRow
 									key={row.id}
 									data-state={row.getIsSelected() && "selected"}
+									className="cursor-pointer"
+									onClick={() => {
+										navigate(`/customers/${row.original.id}`)
+									}}
 								>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell key={cell.id}>
@@ -142,7 +157,7 @@ export function DataTable({ data, columns }: { data: Customer[], columns: Column
 									colSpan={columns.length}
 									className="h-24 text-center"
 								>
-									No results.
+									No hay resultados.
 								</TableCell>
 							</TableRow>
 						)}
@@ -151,8 +166,8 @@ export function DataTable({ data, columns }: { data: Customer[], columns: Column
 			</div>
 			<div className="flex items-center justify-end space-x-2 py-4">
 				<div className="flex-1 text-sm text-muted-foreground">
-					{table.getFilteredSelectedRowModel().rows.length} of{" "}
-					{table.getFilteredRowModel().rows.length} row(s) selected.
+					{table.getFilteredSelectedRowModel().rows.length} de{" "}
+					{table.getFilteredRowModel().rows.length} fila(s) seleccionada(s).
 				</div>
 				<div className="space-x-2">
 					<Button
@@ -161,7 +176,7 @@ export function DataTable({ data, columns }: { data: Customer[], columns: Column
 						onClick={() => table.previousPage()}
 						disabled={!table.getCanPreviousPage()}
 					>
-						Previous
+						Anterior
 					</Button>
 					<Button
 						variant="outline"
@@ -169,7 +184,7 @@ export function DataTable({ data, columns }: { data: Customer[], columns: Column
 						onClick={() => table.nextPage()}
 						disabled={!table.getCanNextPage()}
 					>
-						Next
+						Siguiente
 					</Button>
 				</div>
 			</div>
