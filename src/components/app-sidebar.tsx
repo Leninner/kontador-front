@@ -24,7 +24,7 @@ import {
 	SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { useAuthStore } from "../store/useAuthStore"
-import { IUser } from "../common/interfaces/auth.interface"
+import { IUser } from "../modules/auth/auth.interface"
 import { Link } from "react-router-dom"
 
 const data = {

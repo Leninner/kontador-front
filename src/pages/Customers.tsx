@@ -1,9 +1,9 @@
 import { columns } from "../modules/customers/columns"
 import { DataTable } from "../modules/customers/data-table"
-import { payments } from "../common/interfaces/customers.interface"
+import { customers } from "../modules/customers/customers.interface"
 
 export const CustomersPage = () => {
-	const data = payments;
+	const data = customers;
 
 	return (
 		<div className="container mx-auto py-10">

@@ -1,7 +1,7 @@
 import { GalleryVerticalEnd } from 'lucide-react';
 import { RegisterForm } from '../components/register-form';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { authService } from '../services/auth/auth.service';
+import { authService } from '../modules/auth/auth.service';
 import { useAuthStore } from '@/store/useAuthStore';
 import { toast } from 'sonner';
 
