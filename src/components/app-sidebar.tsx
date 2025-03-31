@@ -4,6 +4,7 @@ import {
 	Frame,
 	Home,
 	LifeBuoy,
+	List,
 	Map,
 	PieChart,
 	Send,
@@ -33,7 +34,11 @@ const data = {
 			title: "Dashboard",
 			url: "/dashboard",
 			icon: Home,
-			isActive: true,
+		},
+		{
+			title: "Tareas",
+			url: "/tasks",
+			icon: List,
 		},
 		{
 			title: "Clientes",
@@ -95,9 +100,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				</SidebarMenu>
 			</SidebarHeader>
 			<SidebarContent>
-				<NavMain items={data.navMain} />
+				<NavMain items={data.navMain as { title: string; url: string; icon?: import("@tabler/icons-react").Icon | undefined }[]} />
 				<NavProjects projects={data.projects} />
-				<NavSecondary items={data.navSecondary} className="mt-auto" />
+				<NavSecondary items={data.navSecondary as { title: string; url: string; icon: import("@tabler/icons-react").Icon }[]} className="mt-auto" />
 			</SidebarContent>
 			<SidebarFooter>
 				<NavUser user={user as IUser} />
