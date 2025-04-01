@@ -25,6 +25,27 @@ export type Feature = {
   startAt: Date;
   endAt: Date;
   status: Status;
+  group: {
+    id: string;
+    name: string;
+  };
+  product: {
+    id: string;
+    name: string;
+  };
+  owner: {
+    id: string;
+    image: string;
+    name: string;
+  };
+  initiative: {
+    id: string;
+    name: string;
+  };
+  release: {
+    id: string;
+    name: string;
+  };
 };
 
 export type KanbanBoardProps = {
@@ -55,6 +76,7 @@ export type KanbanCardProps = Pick<Feature, 'id' | 'name'> & {
   parent: string;
   children?: ReactNode;
   className?: string;
+  onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
 };
 
 export const KanbanCard = ({
@@ -64,12 +86,18 @@ export const KanbanCard = ({
   parent,
   children,
   className,
+  onClick,
 }: KanbanCardProps) => {
-  const { attributes, listeners, setNodeRef, transform, isDragging } =
-    useDraggable({
-      id,
-      data: { index, parent },
-    });
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id,
+    data: { index, parent },
+  });
+
+  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging) {
+      onClick?.(event);
+    }
+  };
 
   return (
     <Card
@@ -83,6 +111,7 @@ export const KanbanCard = ({
           ? `translateX(${transform.x}px) translateY(${transform.y}px)`
           : 'none',
       }}
+      onClick={handleClick}
       {...listeners}
       {...attributes}
       ref={setNodeRef}
@@ -103,13 +132,13 @@ export const KanbanCards = ({ children, className }: KanbanCardsProps) => (
 
 export type KanbanHeaderProps =
   | {
-      children: ReactNode;
-    }
+    children: ReactNode;
+  }
   | {
-      name: Status['name'];
-      color: Status['color'];
-      className?: string;
-    };
+    name: Status['name'];
+    color: Status['color'];
+    className?: string;
+  };
 
 export const KanbanHeader = (props: KanbanHeaderProps) =>
   'children' in props ? (

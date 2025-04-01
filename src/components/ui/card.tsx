@@ -2,18 +2,58 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-function Card({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card"
-      className={cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
-        className
-      )}
-      {...props}
-    />
-  )
+interface CardProps extends React.ComponentProps<"div"> {
+  onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
+  isDraggable?: boolean;
 }
+
+const Card = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className, onClick, isDraggable = true, ...props }, ref) => {
+    const [isClicking, setIsClicking] = React.useState(false);
+    const clickTimeoutRef = React.useRef<NodeJS.Timeout>();
+
+    const handleMouseDown = () => {
+      setIsClicking(true);
+      clickTimeoutRef.current = setTimeout(() => {
+        setIsClicking(false);
+      }, 200);
+    };
+
+    const handleMouseUp = (event: React.MouseEvent<HTMLDivElement>) => {
+      if (isClicking) {
+        onClick?.(event);
+      }
+      setIsClicking(false);
+      if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current);
+      }
+    };
+
+    React.useEffect(() => {
+      return () => {
+        if (clickTimeoutRef.current) {
+          clearTimeout(clickTimeoutRef.current);
+        }
+      };
+    }, []);
+
+    return (
+      <div
+        ref={ref}
+        data-slot="card"
+        className={cn(
+          "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
+          isDraggable && "cursor-grab active:cursor-grabbing",
+          className
+        )}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        {...props}
+      />
+    )
+  }
+)
+Card.displayName = "Card"
 
 function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
