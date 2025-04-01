@@ -3,6 +3,8 @@ import { customersService } from './customers.service'
 import { CreateCustomerDto, UpdateCustomerDto, FindAllCustomersDto } from './customers.interface'
 
 export const useCustomers = (query?: FindAllCustomersDto) => {
+  console.log(query)
+
   const queryClient = useQueryClient()
 
   const customers = useQuery({
@@ -32,7 +34,7 @@ export const useCustomers = (query?: FindAllCustomersDto) => {
   })
 
   return {
-    customers: customers.data?.data ?? [],
+    customersData: customers.data || { data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } },
     isLoading: customers.isLoading,
     error: customers.error,
     createCustomer,

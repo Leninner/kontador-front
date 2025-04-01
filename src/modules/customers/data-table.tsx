@@ -9,9 +9,10 @@ import {
 	flexRender,
 	getCoreRowModel,
 	getFilteredRowModel,
-	getPaginationRowModel,
 	getSortedRowModel,
 	useReactTable,
+	OnChangeFn,
+	PaginationState,
 } from "@tanstack/react-table"
 import { ChevronDown } from "lucide-react"
 
@@ -31,7 +32,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table"
-import { Customer } from "./customers.interface"
+import { Customer, Meta } from "./customers.interface"
 import { useNavigate } from "react-router-dom"
 import { Select, SelectItem, SelectTrigger, SelectValue, SelectContent } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
@@ -41,29 +42,65 @@ import { IconChevronsLeft } from "@tabler/icons-react"
 interface DataTableProps {
 	data: Customer[]
 	columns: ColumnDef<Customer>[]
+	meta: Meta
 	isLoading?: boolean
+	onPaginationChange?: OnChangeFn<PaginationState>
+	onFilterChange?: (filters: ColumnFiltersState) => void
 }
 
-export function DataTable({ data, columns, isLoading }: DataTableProps) {
+export function DataTable({ data, columns, meta, isLoading, onPaginationChange, onFilterChange }: DataTableProps) {
 	const [sorting, setSorting] = React.useState<SortingState>([])
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
 	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
 	const navigate = useNavigate()
 
+	const handleColumnFiltersChange = (updaterOrValue: ColumnFiltersState | ((old: ColumnFiltersState) => ColumnFiltersState)) => {
+		const newFilters = typeof updaterOrValue === 'function' ? updaterOrValue(columnFilters) : updaterOrValue
+		setColumnFilters(newFilters)
+		onFilterChange?.(newFilters)
+		if (onPaginationChange) {
+			onPaginationChange({ pageIndex: 0, pageSize: meta.limit })
+		}
+	}
+
+	const handlePageSizeChange = (value: string) => {
+		const newPageSize = Number(value)
+		onPaginationChange?.({
+			pageIndex: 0,
+			pageSize: newPageSize
+		})
+	}
+
 	const table = useReactTable({
 		data,
 		columns,
 		onSortingChange: setSorting,
-		onColumnFiltersChange: setColumnFilters,
+		onColumnFiltersChange: handleColumnFiltersChange,
 		getCoreRowModel: getCoreRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
 		onColumnVisibilityChange: setColumnVisibility,
+		rowCount: meta.total,
+		pageCount: meta.totalPages,
+		initialState: {
+			pagination: {
+				pageIndex: meta.page - 1,
+				pageSize: meta.limit,
+			},
+		},
+		onPaginationChange: (updater) => {
+			const newPagination = typeof updater === 'function' ? updater(table.getState().pagination) : updater
+			onPaginationChange?.(newPagination)
+		},
+		manualPagination: true,
 		state: {
 			sorting,
 			columnFilters,
 			columnVisibility,
+			pagination: {
+				pageIndex: meta.page - 1,
+				pageSize: meta.limit,
+			},
 		},
 	})
 
@@ -169,25 +206,19 @@ export function DataTable({ data, columns, isLoading }: DataTableProps) {
 				</Table>
 			</div>
 
-			<div className="flex items-center justify-between px-4 mt-4">
-				<div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-					{table.getFilteredSelectedRowModel().rows.length} de{" "}
-					{table.getFilteredRowModel().rows.length} fila(s) seleccionada(s).
-				</div>
+			<div className="flex items-center justify-end px-4 mt-4">
 				<div className="flex w-full items-center gap-8 lg:w-fit">
 					<div className="hidden items-center gap-2 lg:flex">
 						<Label htmlFor="rows-per-page" className="text-sm font-medium">
 							Filas por página
 						</Label>
 						<Select
-							value={`${table.getState().pagination.pageSize}`}
-							onValueChange={(value) => {
-								table.setPageSize(Number(value))
-							}}
+							value={`${meta.limit}`}
+							onValueChange={handlePageSizeChange}
 						>
 							<SelectTrigger size="sm" className="w-20" id="rows-per-page">
 								<SelectValue
-									placeholder={table.getState().pagination.pageSize}
+									placeholder={meta.limit}
 								/>
 							</SelectTrigger>
 							<SelectContent side="top">
@@ -200,15 +231,15 @@ export function DataTable({ data, columns, isLoading }: DataTableProps) {
 						</Select>
 					</div>
 					<div className="flex w-fit items-center justify-center text-sm font-medium">
-						Página {table.getState().pagination.pageIndex + 1} de{" "}
-						{table.getPageCount()}
+						Página {meta.page} de{" "}
+						{meta.totalPages}
 					</div>
 					<div className="ml-auto flex items-center gap-2 lg:ml-0">
 						<Button
 							variant="outline"
 							className="hidden h-8 w-8 p-0 lg:flex"
 							onClick={() => table.setPageIndex(0)}
-							disabled={!table.getCanPreviousPage()}
+							disabled={table.getState().pagination.pageIndex === 0}
 						>
 							<span className="sr-only">Primera página</span>
 							<IconChevronsLeft />
@@ -238,7 +269,7 @@ export function DataTable({ data, columns, isLoading }: DataTableProps) {
 							className="hidden size-8 lg:flex"
 							size="icon"
 							onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-							disabled={!table.getCanNextPage()}
+							disabled={table.getState().pagination.pageIndex === table.getPageCount() - 1}
 						>
 							<span className="sr-only">Última página</span>
 							<IconChevronsRight />

@@ -1,11 +1,11 @@
 import { httpClient } from '@/lib/http'
-import { Customer, CreateCustomerDto, UpdateCustomerDto, FindAllCustomersDto } from './customers.interface'
+import { Customer, CreateCustomerDto, UpdateCustomerDto, FindAllCustomersDto, Meta } from './customers.interface'
 
 const BASE_URL = '/customers'
 
 export const customersService = {
   async findAll(query?: FindAllCustomersDto) {
-    const response = await httpClient.get<{ data: Customer[] }>(BASE_URL, { params: query })
+    const response = await httpClient.get<{ data: Customer[]; meta: Meta }>(BASE_URL, { params: query })
     return response.data
   },
 
