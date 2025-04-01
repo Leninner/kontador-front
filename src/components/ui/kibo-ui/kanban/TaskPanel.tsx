@@ -23,9 +23,9 @@ export const TaskPanel = ({ feature, isOpen, onClose, onSave }: TaskPanelProps) 
 			/>
 
 			{/* Panel */}
-			<div className="fixed right-0 top-0 h-screen w-[700px] bg-background border-l shadow-lg z-50">
+			<div className="fixed right-0 top-0 h-screen w-[700px] bg-background border-l shadow-lg z-50 flex flex-col">
 				{/* Header */}
-				<div className="border-b p-6">
+				<div className="border-b p-6 flex-shrink-0">
 					<div className="flex items-center justify-between">
 						<h2 className="text-xl font-semibold">{feature.name}</h2>
 						<Button variant="ghost" size="sm" onClick={onClose}>
@@ -35,8 +35,8 @@ export const TaskPanel = ({ feature, isOpen, onClose, onSave }: TaskPanelProps) 
 				</div>
 
 				{/* Content */}
-				<div className="flex h-full flex-col">
-					<div className="flex-1 space-y-6 overflow-y-auto p-6">
+				<div className="flex-1 overflow-y-auto p-6">
+					<div className="space-y-6">
 						{/* Owner */}
 						<div className="flex items-center gap-2">
 							<Avatar className="h-8 w-8">
@@ -84,15 +84,15 @@ export const TaskPanel = ({ feature, isOpen, onClose, onSave }: TaskPanelProps) 
 							/>
 						</div>
 					</div>
+				</div>
 
-					{/* Footer */}
-					<div className="border-t p-6">
-						<div className="flex justify-end gap-2">
-							<Button variant="outline" onClick={onClose}>
-								Cancel
-							</Button>
-							<Button onClick={() => onSave(feature)}>Save Changes</Button>
-						</div>
+				{/* Footer */}
+				<div className="border-t p-6 flex-shrink-0">
+					<div className="flex justify-end gap-2">
+						<Button variant="outline" onClick={onClose}>
+							Cancel
+						</Button>
+						<Button onClick={() => onSave(feature)}>Save Changes</Button>
 					</div>
 				</div>
 			</div>
