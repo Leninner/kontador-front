@@ -33,7 +33,6 @@ import {
 	TableRow,
 } from "@/components/ui/table"
 import { Customer, Meta } from "./customers.interface"
-import { useNavigate } from "react-router-dom"
 import { Select, SelectItem, SelectTrigger, SelectValue, SelectContent } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { IconChevronLeft, IconChevronsRight, IconChevronRight } from "@tabler/icons-react"
@@ -52,7 +51,6 @@ export function DataTable({ data, columns, meta, isLoading, onPaginationChange, 
 	const [sorting, setSorting] = React.useState<SortingState>([])
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
 	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
-	const navigate = useNavigate()
 
 	const handleColumnFiltersChange = (updaterOrValue: ColumnFiltersState | ((old: ColumnFiltersState) => ColumnFiltersState)) => {
 		const newFilters = typeof updaterOrValue === 'function' ? updaterOrValue(columnFilters) : updaterOrValue
@@ -178,9 +176,6 @@ export function DataTable({ data, columns, meta, isLoading, onPaginationChange, 
 									key={row.id}
 									data-state={row.getIsSelected() && "selected"}
 									className="cursor-pointer"
-									onClick={() => {
-										navigate(`/customers/${row.original.id}`)
-									}}
 								>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell key={cell.id}>

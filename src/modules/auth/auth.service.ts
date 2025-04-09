@@ -13,9 +13,4 @@ export const authService = {
     const response = await httpClient.post<IAuthResponse>(`${BASE_URL}/register`, credentials)
     return response.data
   },
-
-  logout: async (): Promise<{ success: boolean }> => {
-    const response = await httpClient.post<{ success: boolean }>(`${BASE_URL}/logout`)
-    return response.data
-  },
 }
