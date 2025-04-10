@@ -11,15 +11,14 @@ export const useBoards = () => {
   })
 
   const createColumn = useMutation({
-    mutationFn: (data: CreateBoardColumnDto) => boardsService.createColumn(board.data?.id || '', data),
+    mutationFn: (data: CreateBoardColumnDto) => boardsService.createColumn(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['board'] })
     },
   })
 
   const updateColumn = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateBoardColumnDto }) =>
-      boardsService.updateColumn(board.data?.id || '', id, data),
+    mutationFn: ({ id, data }: { id: string; data: UpdateBoardColumnDto }) => boardsService.updateColumn(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['board'] })
     },

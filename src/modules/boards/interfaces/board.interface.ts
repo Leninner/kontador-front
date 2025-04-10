@@ -29,8 +29,7 @@ export interface BoardColumnCard {
 export interface CreateBoardColumnDto {
   name: string
   description?: string
+  boardId: string
 }
 
-export interface UpdateBoardColumnDto extends Partial<CreateBoardColumnDto> {
-  id: string
-}
+export type UpdateBoardColumnDto = Partial<CreateBoardColumnDto>

@@ -1,0 +1,153 @@
+'use client';
+
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
+import { Check, MoreHorizontal, Pencil, Plus, X } from 'lucide-react';
+import type { ReactNode } from 'react';
+import { useState } from 'react';
+
+export type KanbanHeaderProps = {
+	children?: ReactNode;
+	name?: string;
+	color?: string;
+	className?: string;
+	cardCount?: number;
+	onAddCard?: () => void;
+	onDeleteColumn?: () => void;
+	onMoveLeft?: () => void;
+	onMoveRight?: () => void;
+	onEditRules?: () => void;
+	onUpdateName?: (newName: string) => void;
+};
+
+export const KanbanHeader = ({
+	children,
+	name,
+	color,
+	className,
+	cardCount = 0,
+	onAddCard,
+	onDeleteColumn,
+	onMoveLeft,
+	onMoveRight,
+	onEditRules,
+	onUpdateName,
+}: KanbanHeaderProps) => {
+	const [isEditing, setIsEditing] = useState(false);
+	const [editedName, setEditedName] = useState(name);
+
+	if (children) {
+		return children;
+	}
+
+	const handleStartEditing = () => {
+		setEditedName(name);
+		setIsEditing(true);
+	};
+
+	const handleSave = () => {
+		if (editedName?.trim() && editedName !== name) {
+			onUpdateName?.(editedName);
+		}
+		setIsEditing(false);
+	};
+
+	const handleCancel = () => {
+		setEditedName(name);
+		setIsEditing(false);
+	};
+
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		if (e.key === 'Enter') {
+			handleSave();
+		} else if (e.key === 'Escape') {
+			handleCancel();
+		}
+	};
+
+	return (
+		<div className={cn('flex shrink-0 items-center justify-between gap-2', className)}>
+			<div className="flex items-center gap-2">
+				<div
+					className="h-2 w-2 rounded-full"
+					style={{ backgroundColor: color }}
+				/>
+				{isEditing ? (
+					<div className="flex items-center gap-1">
+						<Input
+							value={editedName}
+							onChange={(e) => setEditedName(e.target.value)}
+							onKeyDown={handleKeyDown}
+							className="h-6 w-32 text-sm"
+							autoFocus
+						/>
+						<Button
+							variant="ghost"
+							size="icon"
+							className="h-6 w-6"
+							onClick={handleSave}
+						>
+							<Check className="h-3 w-3" />
+						</Button>
+						<Button
+							variant="ghost"
+							size="icon"
+							className="h-6 w-6"
+							onClick={handleCancel}
+						>
+							<X className="h-3 w-3" />
+						</Button>
+					</div>
+				) : (
+					<div className="flex items-center gap-1">
+						<p className="m-0 font-semibold text-sm">{name}</p>
+						<Button
+							variant="ghost"
+							size="icon"
+							className="h-6 w-6"
+							onClick={handleStartEditing}
+						>
+							<Pencil className="h-3 w-3" />
+						</Button>
+					</div>
+				)}
+				<span className="text-muted-foreground text-xs">({cardCount})</span>
+			</div>
+			<div className="flex items-center gap-1">
+				<Button
+					variant="ghost"
+					size="icon"
+					className="h-6 w-6"
+					onClick={onAddCard}
+				>
+					<Plus className="h-4 w-4" />
+				</Button>
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button variant="ghost" size="icon" className="h-6 w-6">
+							<MoreHorizontal className="h-4 w-4" />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end">
+						<DropdownMenuItem onClick={onMoveLeft}>Move left</DropdownMenuItem>
+						<DropdownMenuItem onClick={onMoveRight}>Move right</DropdownMenuItem>
+						<DropdownMenuItem onClick={onEditRules}>Edit rules</DropdownMenuItem>
+						<DropdownMenuItem
+							className="text-destructive"
+							onClick={onDeleteColumn}
+						>
+							Delete column
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
+			</div>
+		</div>
+	);
+}; 

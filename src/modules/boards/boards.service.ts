@@ -9,13 +9,13 @@ export const boardsService = {
     return response.data.data
   },
 
-  async createColumn(boardId: string, data: CreateBoardColumnDto) {
-    const response = await httpClient.post<{ data: BoardColumn }>(`${BASE_URL}/${boardId}/columns`, data)
+  async createColumn(data: CreateBoardColumnDto) {
+    const response = await httpClient.post<{ data: BoardColumn }>(`${BASE_URL}/columns`, data)
     return response.data
   },
 
-  async updateColumn(boardId: string, columnId: string, data: UpdateBoardColumnDto) {
-    const response = await httpClient.patch<{ data: BoardColumn }>(`${BASE_URL}/${boardId}/columns/${columnId}`, data)
+  async updateColumn(columnId: string, data: UpdateBoardColumnDto) {
+    const response = await httpClient.put<{ data: BoardColumn }>(`${BASE_URL}/columns/${columnId}`, data)
     return response.data
   },
 
