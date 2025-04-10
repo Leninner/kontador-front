@@ -1,12 +1,9 @@
 import * as React from "react"
 import {
 	Command,
-	Frame,
 	Home,
 	LifeBuoy,
 	List,
-	Map,
-	PieChart,
 	Send,
 	Users,
 } from "lucide-react"
@@ -48,7 +45,7 @@ const data = {
 	],
 	navSecondary: [
 		{
-			title: "Support",
+			title: "Soporte",
 			url: "#",
 			icon: LifeBuoy,
 		},
@@ -58,23 +55,23 @@ const data = {
 			icon: Send,
 		},
 	],
-	projects: [
-		{
-			name: "Design Engineering",
-			url: "#",
-			icon: Frame,
-		},
-		{
-			name: "Sales & Marketing",
-			url: "#",
-			icon: PieChart,
-		},
-		{
-			name: "Travel",
-			url: "#",
-			icon: Map,
-		},
-	],
+	// projects: [
+	// 	{
+	// 		name: "Design Engineering",
+	// 		url: "#",
+	// 		icon: Frame,
+	// 	},
+	// 	{
+	// 		name: "Sales & Marketing",
+	// 		url: "#",
+	// 		icon: PieChart,
+	// 	},
+	// 	{
+	// 		name: "Travel",
+	// 		url: "#",
+	// 		icon: Map,
+	// 	},
+	// ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -101,7 +98,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			</SidebarHeader>
 			<SidebarContent>
 				<NavMain items={data.navMain as { title: string; url: string; icon?: import("@tabler/icons-react").Icon | undefined }[]} />
-				<NavProjects projects={data.projects} />
+				{/* <NavProjects projects={data.projects} /> */}
 				<NavSecondary items={data.navSecondary as { title: string; url: string; icon: import("@tabler/icons-react").Icon }[]} className="mt-auto" />
 			</SidebarContent>
 			<SidebarFooter>

@@ -5,13 +5,11 @@ import { Button } from "@/components/ui/button"
 import {
 	Card,
 	CardContent,
-	CardDescription,
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CustomerDocuments } from "@/modules/customers/customer-documents"
-import { UpdateCustomerDto } from "@/modules/customers/customers.interface"
+import { UpdateCustomerDto, Customer } from "@/modules/customers/customers.interface"
 import { useState } from "react"
 import {
 	Dialog,
@@ -20,13 +18,14 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Edit2 } from "lucide-react"
+import { Separator } from "@/components/ui/separator"
 
 export const CustomerDetail = () => {
 	const { id } = useParams<{ id: string }>()
 	const [isEditOpen, setIsEditOpen] = useState(false)
-	const { customers, updateCustomer } = useCustomers()
-	const customer = customers.find(c => c.id === id)
+	const { customersData, updateCustomer } = useCustomers()
+	const customer = customersData.data.find((c: Customer) => c.id === id)
 
 	if (!customer) {
 		return <div>Customer not found</div>
@@ -42,24 +41,22 @@ export const CustomerDetail = () => {
 	}
 
 	return (
-		<div className="container mx-auto py-10">
-			<Link to="/customers" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6">
-				<ArrowLeft className="size-4" />
-				<span>Clientes</span>
-			</Link>
-
-			<div className="flex justify-between items-center mb-6">
-				<div>
-					<h1 className="text-2xl font-bold">{customer.name} {customer.lastName}</h1>
-					<p className="text-muted-foreground">{customer.email}</p>
-				</div>
+		<div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 space-y-6 sm:space-y-8">
+			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+				<Link to="/customers" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors w-fit">
+					<ArrowLeft className="size-4" />
+					<span>Back to Customers</span>
+				</Link>
 				<Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
 					<DialogTrigger asChild>
-						<Button>Editar cliente</Button>
+						<Button variant="outline" className="gap-2 w-full sm:w-auto">
+							<Edit2 className="size-4" />
+							Edit Customer
+						</Button>
 					</DialogTrigger>
-					<DialogContent>
+					<DialogContent className="sm:max-w-[425px]">
 						<DialogHeader>
-							<DialogTitle>Editar cliente</DialogTitle>
+							<DialogTitle>Edit Customer</DialogTitle>
 						</DialogHeader>
 						<CustomerForm
 							initialData={customer}
@@ -70,55 +67,39 @@ export const CustomerDetail = () => {
 				</Dialog>
 			</div>
 
-			<Tabs defaultValue="info" className="space-y-4">
-				<TabsList>
-					<TabsTrigger value="info">Información básica</TabsTrigger>
-					<TabsTrigger value="documents">Documentos</TabsTrigger>
-				</TabsList>
-
-				<TabsContent value="info">
-					<Card>
-						<CardHeader>
-							<CardTitle>Detalles del cliente</CardTitle>
-							<CardDescription>Información básica del cliente</CardDescription>
-						</CardHeader>
-						<CardContent className="grid gap-4">
-							<div className="grid grid-cols-2 gap-4">
-								<div>
-									<h3 className="font-medium">Nombre</h3>
-									<p className="text-muted-foreground">{customer.name}</p>
-								</div>
-								<div>
-									<h3 className="font-medium">Apellido</h3>
-									<p className="text-muted-foreground">{customer.lastName}</p>
-								</div>
-								<div>
-									<h3 className="font-medium">Correo electrónico</h3>
-									<p className="text-muted-foreground">{customer.email}</p>
-								</div>
-								<div>
-									<h3 className="font-medium">Tipo de documento</h3>
-									<p className="text-muted-foreground">{customer.documentType}</p>
-								</div>
-								<div>
-									<h3 className="font-medium">Número de documento</h3>
-									<p className="text-muted-foreground">{customer.documentId}</p>
-								</div>
-								<div>
-									<h3 className="font-medium">Fecha de creación</h3>
-									<p className="text-muted-foreground">
-										{new Date(customer.createdAt).toLocaleDateString()}
-									</p>
-								</div>
+			<div className="space-y-6 sm:space-y-8">
+				<Card className="w-full">
+					<CardHeader className="space-y-2">
+						<CardTitle className="text-xl sm:text-2xl lg:text-3xl">{customer.name} {customer.lastName}</CardTitle>
+						<p className="text-sm sm:text-base text-muted-foreground">{customer.email}</p>
+					</CardHeader>
+					<CardContent>
+						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+							<div className="space-y-1">
+								<h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Document Type</h3>
+								<p className="text-base sm:text-lg">{customer.documentType}</p>
 							</div>
-						</CardContent>
-					</Card>
-				</TabsContent>
+							<div className="space-y-1">
+								<h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Document Number</h3>
+								<p className="text-base sm:text-lg">{customer.documentId}</p>
+							</div>
+							<div className="space-y-1">
+								<h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Created At</h3>
+								<p className="text-base sm:text-lg">
+									{new Date(customer.createdAt).toLocaleDateString()}
+								</p>
+							</div>
+						</div>
+					</CardContent>
+				</Card>
 
-				<TabsContent value="documents">
+				<Separator className="my-4 sm:my-6" />
+
+				<div className="space-y-4">
+					<h2 className="text-xl sm:text-2xl font-semibold">Documents</h2>
 					<CustomerDocuments customerId={customer.id} />
-				</TabsContent>
-			</Tabs>
+				</div>
+			</div>
 		</div>
 	)
 } 
