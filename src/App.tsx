@@ -8,7 +8,7 @@ import { PublicRoute } from './components/auth/PublicRoute';
 import { Toaster } from './components/ui/sonner.tsx'
 import { CustomersPage } from './pages/Customers';
 import { CustomerDetail } from './pages/CustomerDetail';
-import { TasksPage } from './pages/Tasks';
+import { BoardPage } from './pages/Board';
 import { QueryProvider } from './providers/query-provider'
 import { AppLayout } from './components/ui/layout.tsx';
 
@@ -62,10 +62,10 @@ const App = () => {
             }
           />
           <Route
-            path="/tasks"
+            path="/board"
             element={
               <ProtectedRoute>
-                <TasksPage />
+                <BoardPage />
               </ProtectedRoute>
             }
           />

@@ -1,0 +1,34 @@
+export interface Board {
+  id: string
+  name: string
+  description: string
+  columns: BoardColumn[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface BoardColumn {
+  id: string
+  name: string
+  description?: string
+  cards: BoardColumnCard[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface BoardColumnCard {
+  id: string
+  name: string
+  description?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateBoardColumnDto {
+  name: string
+  description?: string
+}
+
+export interface UpdateBoardColumnDto extends Partial<CreateBoardColumnDto> {
+  id: string
+}

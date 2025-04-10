@@ -2,17 +2,17 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import type { Feature } from './types';
+import type { BoardColumnCard } from '@/modules/boards/interfaces/board.interface';
 
 interface TaskPanelProps {
-	feature: Feature | null;
+	card: BoardColumnCard | null;
 	isOpen: boolean;
 	onClose: () => void;
-	onSave: (feature: Feature) => void;
+	onSave: (card: BoardColumnCard) => void;
 }
 
-export const TaskPanel = ({ feature, isOpen, onClose, onSave }: TaskPanelProps) => {
-	if (!isOpen || !feature) return null;
+export const TaskPanel = ({ card, isOpen, onClose, onSave }: TaskPanelProps) => {
+	if (!isOpen || !card) return null;
 
 	return (
 		<div className="fixed inset-0 z-50">
@@ -27,7 +27,7 @@ export const TaskPanel = ({ feature, isOpen, onClose, onSave }: TaskPanelProps) 
 				{/* Header */}
 				<div className="border-b p-6 flex-shrink-0">
 					<div className="flex items-center justify-between">
-						<h2 className="text-xl font-semibold">{feature.name}</h2>
+						<h2 className="text-xl font-semibold">{card.name}</h2>
 						<Button variant="ghost" size="sm" onClick={onClose}>
 							Close
 						</Button>
@@ -40,13 +40,13 @@ export const TaskPanel = ({ feature, isOpen, onClose, onSave }: TaskPanelProps) 
 						{/* Owner */}
 						<div className="flex items-center gap-2">
 							<Avatar className="h-8 w-8">
-								<AvatarImage src={feature.owner.image} />
+								<AvatarImage src={card.name} />
 								<AvatarFallback>
-									{feature.owner.name?.slice(0, 2)}
+									{card.name?.slice(0, 2)}
 								</AvatarFallback>
 							</Avatar>
 							<div>
-								<p className="text-sm font-medium">{feature.owner.name}</p>
+								<p className="text-sm font-medium">{card.name}</p>
 								<p className="text-xs text-muted-foreground">Owner</p>
 							</div>
 						</div>
@@ -55,22 +55,7 @@ export const TaskPanel = ({ feature, isOpen, onClose, onSave }: TaskPanelProps) 
 						<div className="space-y-4">
 							<div>
 								<p className="text-sm font-medium">Initiative</p>
-								<p className="text-sm text-muted-foreground">{feature.initiative.name}</p>
-							</div>
-							<div>
-								<p className="text-sm font-medium">Group</p>
-								<p className="text-sm text-muted-foreground">{feature.group.name}</p>
-							</div>
-							<div>
-								<p className="text-sm font-medium">Release</p>
-								<p className="text-sm text-muted-foreground">{feature.release.name}</p>
-							</div>
-							<div>
-								<p className="text-sm font-medium">Timeline</p>
-								<p className="text-sm text-muted-foreground">
-									{new Date(feature.startAt).toLocaleDateString()} -{' '}
-									{new Date(feature.endAt).toLocaleDateString()}
-								</p>
+								<p className="text-sm text-muted-foreground">{card.name}</p>
 							</div>
 						</div>
 
@@ -92,7 +77,7 @@ export const TaskPanel = ({ feature, isOpen, onClose, onSave }: TaskPanelProps) 
 						<Button variant="outline" onClick={onClose}>
 							Cancel
 						</Button>
-						<Button onClick={() => onSave(feature)}>Save Changes</Button>
+						<Button onClick={() => onSave(card)}>Save Changes</Button>
 					</div>
 				</div>
 			</div>

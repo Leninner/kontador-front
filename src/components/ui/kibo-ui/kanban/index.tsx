@@ -19,35 +19,6 @@ export type Status = {
   color: string;
 };
 
-export type Feature = {
-  id: string;
-  name: string;
-  startAt: Date;
-  endAt: Date;
-  status: Status;
-  group: {
-    id: string;
-    name: string;
-  };
-  product: {
-    id: string;
-    name: string;
-  };
-  owner: {
-    id: string;
-    image: string;
-    name: string;
-  };
-  initiative: {
-    id: string;
-    name: string;
-  };
-  release: {
-    id: string;
-    name: string;
-  };
-};
-
 export type KanbanBoardProps = {
   id: Status['id'];
   children: ReactNode;
@@ -60,7 +31,7 @@ export const KanbanBoard = ({ id, children, className }: KanbanBoardProps) => {
   return (
     <div
       className={cn(
-        'flex h-full min-h-40 flex-col gap-2 rounded-md border bg-secondary p-2 text-xs shadow-sm outline outline-2 transition-all',
+        'flex h-full min-h-40 flex-col gap-2 rounded-md border bg-secondary p-2 text-xs shadow-sm outline-2 transition-all',
         isOver ? 'outline-primary' : 'outline-transparent',
         className
       )}
@@ -71,7 +42,10 @@ export const KanbanBoard = ({ id, children, className }: KanbanBoardProps) => {
   );
 };
 
-export type KanbanCardProps = Pick<Feature, 'id' | 'name'> & {
+export type KanbanCardProps = {
+  id: string;
+  name: string;
+  description: string;
   index: number;
   parent: string;
   children?: ReactNode;
@@ -82,6 +56,7 @@ export type KanbanCardProps = Pick<Feature, 'id' | 'name'> & {
 export const KanbanCard = ({
   id,
   name,
+  description,
   index,
   parent,
   children,
@@ -117,6 +92,7 @@ export const KanbanCard = ({
       ref={setNodeRef}
     >
       {children ?? <p className="m-0 font-medium text-sm">{name}</p>}
+      <p className="m-0 text-muted-foreground text-xs">{description}</p>
     </Card>
   );
 };
