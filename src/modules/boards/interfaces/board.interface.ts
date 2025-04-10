@@ -11,7 +11,9 @@ export interface BoardColumn {
   id: string
   name: string
   description?: string
+  color?: string
   cards: BoardColumnCard[]
+  order: number
   createdAt: string
   updatedAt: string
 }

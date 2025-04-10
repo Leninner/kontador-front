@@ -32,8 +32,21 @@ export const useBoards = () => {
     },
   })
 
+  const ADD_NEW_COLUMN = {
+    id: '',
+    name: 'Añadir nueva sección',
+    description: '',
+    color: '#FFD700',
+    cards: [],
+    createdAt: '',
+    updatedAt: '',
+  }
+
   return {
-    boardData: board.data || { id: '', name: '', description: '', columns: [], createdAt: '', updatedAt: '' },
+    boardData: {
+      ...board.data,
+      columns: [...(board.data?.columns || []), ADD_NEW_COLUMN],
+    },
     isLoading: board.isLoading,
     error: board.error,
     createColumn,

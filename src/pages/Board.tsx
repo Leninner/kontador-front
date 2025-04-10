@@ -77,7 +77,7 @@ export const BoardPage = () => {
 			<KanbanProvider onDragEnd={handleDragEnd} className="p-4">
 				{boardData.columns.map((column) => (
 					<KanbanBoard key={column.name} id={column.name}>
-						<KanbanHeader name={column.name} color={'red'} />
+						<KanbanHeader name={column.name} color={column.color || 'yellow'} />
 
 						<KanbanCards>
 							{column.cards.map((card, index) => (
