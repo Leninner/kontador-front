@@ -43,7 +43,6 @@ export interface BoardColumnCard {
 }
 
 export class UpdateBoardColumnCardDto {
-  id: string
   name?: string
   customerId?: string
   dueDate?: string
@@ -51,7 +50,6 @@ export class UpdateBoardColumnCardDto {
   columnId?: string
 
   constructor(card: BoardColumnCard) {
-    this.id = card.id
     this.name = card.name
     this.customerId = card.customer?.id
     this.dueDate = card.dueDate

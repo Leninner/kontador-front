@@ -4,17 +4,18 @@ import { CreateBoardColumnCardCommentDto, UpdateBoardColumnCardDto } from './int
 import { toast } from 'sonner'
 
 export const useCards = (cardId: string) => {
+  console.log('cardId', cardId)
+
   const queryClient = useQueryClient()
 
-  const card = useQuery({
+  const { data: card } = useQuery({
     queryKey: ['card', cardId],
     queryFn: () => boardsService.getCardDetails(cardId),
     enabled: !!cardId,
   })
 
   const updateCard = useMutation({
-    mutationFn: ({ id, ...rest }: UpdateBoardColumnCardDto) =>
-      boardsService.updateCard(id, rest as UpdateBoardColumnCardDto),
+    mutationFn: (data: UpdateBoardColumnCardDto) => boardsService.updateCard(cardId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['card', cardId] })
       queryClient.invalidateQueries({ queryKey: ['board'] })
@@ -31,7 +32,7 @@ export const useCards = (cardId: string) => {
   })
 
   const deleteComment = useMutation({
-    mutationFn: (commentId: string) => boardsService.deleteComment(cardId, commentId),
+    mutationFn: (commentId: string) => boardsService.deleteComment(commentId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['card', cardId] })
       toast.success('Comentario eliminado correctamente')

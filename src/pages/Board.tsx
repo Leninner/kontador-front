@@ -9,14 +9,13 @@ import { TaskPanel } from '@/components/ui/kibo-ui/kanban/TaskPanel';
 import type { DragEndEvent } from '@/components/ui/kibo-ui/kanban';
 import { useState } from 'react';
 import { useBoards } from '../modules/boards/useBoards';
-import { BoardColumnCard, CreateBoardColumnCardCommentDto, UpdateBoardColumnCardDto } from '../modules/boards/interfaces/board.interface';
+import { BoardColumnCard } from '../modules/boards/interfaces/board.interface';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { KanbanHeader } from '../components/ui/kibo-ui/kanban/kanban-header';
 import { KanbanCard } from '../components/ui/kibo-ui/kanban/kanban-card';
 import { DateFormatter } from '@/lib/date-formatters';
 import { CreateColumnDialog } from '@/components/ui/kibo-ui/kanban/create-column-dialog';
-import { useCards } from '../modules/boards/useCard';
 
 const dateFormatter = DateFormatter.getInstance();
 
@@ -24,7 +23,6 @@ export const BoardPage = () => {
 	const { boardData, createColumn, updateColumn } = useBoards();
 	const [features, setFeatures] = useState(boardData.columns);
 	const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
-	const { card: selectedCard, addComment, updateCard } = useCards(selectedCardId || '');
 
 	const handleDragEnd = (event: DragEndEvent) => {
 		const { active, over } = event;
@@ -54,11 +52,6 @@ export const BoardPage = () => {
 		setSelectedCardId(card.id);
 	};
 
-	const handleSave = (card: UpdateBoardColumnCardDto) => {
-		updateCard.mutate(card);
-		setSelectedCardId(null);
-	};
-
 	const handleAddColumn = (name: string) => {
 		createColumn.mutate({
 			name,
@@ -73,10 +66,6 @@ export const BoardPage = () => {
 				name: newName
 			}
 		});
-	};
-
-	const handleAddComment = (data: CreateBoardColumnCardCommentDto) => {
-		addComment.mutate(data);
 	};
 
 	return (
@@ -108,16 +97,14 @@ export const BoardPage = () => {
 													<p className="m-0 flex-1 font-medium text-sm">
 														{card.name}
 													</p>
-													<p className="m-0 text-muted-foreground text-xs">
-														{card.customer?.name}
-													</p>
+
 													<p className="m-0 text-muted-foreground text-xs">
 														{card.description}
 													</p>
 												</div>
 											</div>
 											<div className="flex flex-col items-start gap-1">
-												<p className="m-0 text-muted-foreground text-xs">
+												<p className={`m-0 text-xs ${dateFormatter.isOverdue(new Date(card.dueDate)) ? 'text-red-500' : 'text-muted-foreground'}`}>
 													{dateFormatter.format(new Date(card.dueDate))}
 												</p>
 											</div>
@@ -137,11 +124,9 @@ export const BoardPage = () => {
 			</KanbanProvider>
 
 			<TaskPanel
-				card={selectedCard?.data || null}
+				cardId={selectedCardId || ''}
 				isOpen={!!selectedCardId}
 				onClose={() => setSelectedCardId(null)}
-				onSave={handleSave}
-				onAddComment={handleAddComment}
 			/>
 		</>
 	);

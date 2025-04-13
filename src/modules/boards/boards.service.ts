@@ -48,10 +48,8 @@ export const boardsService = {
     return response.data.data
   },
 
-  async deleteComment(cardId: string, commentId: string) {
-    const response = await httpClient.delete<{ data: BoardColumnCardComment }>(
-      `${BASE_URL}/cards/${cardId}/comments/${commentId}`,
-    )
+  async deleteComment(commentId: string) {
+    const response = await httpClient.delete<{ data: BoardColumnCardComment }>(`${BASE_URL}/comments/${commentId}`)
     return response.data.data
   },
 

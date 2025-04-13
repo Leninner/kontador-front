@@ -30,4 +30,8 @@ export class DateFormatter {
   public formatShort(date: Date): string {
     return this.shortFormatter.format(date)
   }
+
+  public isOverdue(date: Date): boolean {
+    return date < new Date()
+  }
 }

@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Search, Send } from 'lucide-react';
+import { CalendarIcon, Search, Send, Pencil, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { HistoryActionType, UpdateBoardColumnCardDto, type BoardColumnCard, type BoardColumnCardComment, type BoardColumnCardHistory, type CreateBoardColumnCardCommentDto } from '@/modules/boards/interfaces/board.interface';
 import { useEffect, useState } from 'react';
@@ -18,27 +18,31 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import { useCards } from '@/modules/boards/useCard';
+import { toast } from 'sonner';
 
 const dateFormatter = DateFormatter.getInstance();
 
 interface TaskPanelProps {
-	card: BoardColumnCard | null;
+	cardId: string;
 	isOpen: boolean;
 	onClose: () => void;
-	onSave: (card: UpdateBoardColumnCardDto) => void;
-	onAddComment: (comment: CreateBoardColumnCardCommentDto) => void;
 }
 
-export const TaskPanel = ({ card, isOpen, onClose, onSave, onAddComment }: TaskPanelProps) => {
+export const TaskPanel = ({ cardId, isOpen, onClose }: TaskPanelProps) => {
+	const { card, updateCard, addComment, deleteComment } = useCards(cardId);
+
 	const [editedCard, setEditedCard] = useState<BoardColumnCard | null>(null);
 	const [date, setDate] = useState<Date | undefined>(card?.dueDate ? new Date(card.dueDate) : undefined);
 	const [isEditingTitle, setIsEditingTitle] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [newComment, setNewComment] = useState('');
+	const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+	const [editedCommentContent, setEditedCommentContent] = useState('');
 	const { customersData } = useCustomers({ search: searchQuery });
 
 	useEffect(() => {
-		setEditedCard(card);
+		setEditedCard(card || null);
 		setIsEditingTitle(false);
 	}, [card]);
 
@@ -46,9 +50,15 @@ export const TaskPanel = ({ card, isOpen, onClose, onSave, onAddComment }: TaskP
 
 	const handleSave = () => {
 		if (editedCard) {
-			onSave(new UpdateBoardColumnCardDto(editedCard));
+			updateCard.mutate(new UpdateBoardColumnCardDto(editedCard), {
+				onSuccess: () => {
+					onClose();
+				},
+				onError: () => {
+					toast.error('Error al actualizar la tarjeta');
+				}
+			});
 		}
-		handleCancel();
 	};
 
 	const handleInputChange = (field: keyof BoardColumnCard, value: string) => {
@@ -90,8 +100,35 @@ export const TaskPanel = ({ card, isOpen, onClose, onSave, onAddComment }: TaskP
 			cardId: card.id
 		};
 
-		onAddComment(comment);
+		addComment.mutate(comment);
 		setNewComment('');
+	};
+
+	const handleEditComment = (comment: BoardColumnCardComment) => {
+		setEditingCommentId(comment.id);
+		setEditedCommentContent(comment.content);
+	};
+
+	const handleSaveComment = (commentId: string) => {
+		if (!editedCommentContent.trim()) return;
+
+		const updatedComments = editedCard?.comments?.map(comment =>
+			comment.id === commentId
+				? { ...comment, content: editedCommentContent }
+				: comment
+		);
+
+		setEditedCard(prev => ({
+			...prev!,
+			comments: updatedComments
+		}));
+
+		setEditingCommentId(null);
+		setEditedCommentContent('');
+	};
+
+	const handleDeleteComment = (commentId: string) => {
+		deleteComment.mutate(commentId);
 	};
 
 	const filteredCustomers = customersData.data.filter(customer =>
@@ -193,11 +230,15 @@ export const TaskPanel = ({ card, isOpen, onClose, onSave, onAddComment }: TaskP
 												variant="outline"
 												className={cn(
 													"h-8 justify-start text-left font-normal",
-													!date && "text-muted-foreground"
+													!date
+														? "text-muted-foreground"
+														: dateFormatter.isOverdue(date)
+															? "text-red-500"
+															: "text-muted-foreground"
 												)}
 											>
 												<CalendarIcon className="mr-2 h-4 w-4" />
-												{date ? DateFormatter.getInstance().format(date) : <span>Seleccionar fecha</span>}
+												{date ? dateFormatter.format(date) : <span>Seleccionar fecha</span>}
 											</Button>
 										</PopoverTrigger>
 										<PopoverContent className="w-auto p-0">
@@ -293,37 +334,84 @@ export const TaskPanel = ({ card, isOpen, onClose, onSave, onAddComment }: TaskP
 									{editedCard?.comments?.map((comment: BoardColumnCardComment) => (
 										<div key={comment.id} className="flex items-start gap-2">
 											<div className="flex-1">
-												<p className="text-sm">{comment.content}</p>
-												<p className="text-xs text-muted-foreground">
-													{dateFormatter.format(new Date(comment.createdAt))}
-												</p>
+												{editingCommentId === comment.id ? (
+													<div className="space-y-2">
+														<Textarea
+															value={editedCommentContent}
+															onChange={(e) => setEditedCommentContent(e.target.value)}
+															className="min-h-[60px]"
+														/>
+														<div className="flex gap-2">
+															<Button
+																size="sm"
+																variant="outline"
+																onClick={() => setEditingCommentId(null)}
+															>
+																Cancelar
+															</Button>
+															<Button
+																size="sm"
+																onClick={() => handleSaveComment(comment.id)}
+															>
+																Guardar
+															</Button>
+														</div>
+													</div>
+												) : (
+													<>
+														<p className="text-sm">{comment.content}</p>
+														<div className="flex items-center gap-2 justify-between">
+															<p className="text-xs text-muted-foreground">
+																{dateFormatter.format(new Date(comment.createdAt))}
+															</p>
+															<div className="flex gap-1">
+																<Button
+																	variant="ghost"
+																	size="icon"
+																	className="h-6 w-6"
+																	onClick={() => handleEditComment(comment)}
+																>
+																	<Pencil className="h-3 w-3" />
+																</Button>
+																<Button
+																	variant="ghost"
+																	size="icon"
+																	className="h-6 w-6"
+																	onClick={() => handleDeleteComment(comment.id)}
+																>
+																	<Trash2 className="h-3 w-3" />
+																</Button>
+															</div>
+														</div>
+													</>
+												)}
 											</div>
 										</div>
 									))}
 								</div>
 
-								<div className="sticky bottom-0 bg-white pt-2">
-									<div className="flex gap-2 items-center">
-										<Textarea
-											value={newComment}
-											onChange={(e) => setNewComment(e.target.value)}
-											placeholder="Escribe un comentario..."
-											className="min-h-[60px]"
-										/>
-
-										<Button
-											size="icon"
-											variant="ghost"
-											onClick={handleAddComment}
-											disabled={!newComment.trim()}
-										>
-											<Send className="h-4 w-4" />
-										</Button>
-									</div>
-								</div>
 							</TabsContent>
 						</div>
 					</Tabs>
+					<div className="sticky bottom-0 bg-white p-2">
+						<div className="flex gap-2 items-center">
+							<Textarea
+								value={newComment}
+								onChange={(e) => setNewComment(e.target.value)}
+								placeholder="Escribe un comentario..."
+								className="min-h-[60px]"
+							/>
+
+							<Button
+								size="icon"
+								variant="ghost"
+								onClick={handleAddComment}
+								disabled={!newComment.trim()}
+							>
+								<Send className="h-4 w-4" />
+							</Button>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
