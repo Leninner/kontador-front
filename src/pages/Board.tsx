@@ -69,6 +69,13 @@ export const BoardPage = () => {
 		});
 	};
 
+	const handleUpdateColumnColor = (columnId: string, newColor: string) => {
+		updateColumn.mutate({
+			id: columnId,
+			data: { color: newColor }
+		});
+	};
+
 	const handleCloseTaskPanel = () => {
 		setIsTaskPanelOpen(false);
 	};
@@ -82,10 +89,11 @@ export const BoardPage = () => {
 							<>
 								<KanbanHeader
 									name={column.name}
-									color={column.color || 'yellow'}
+									color={column.color || '#000000'}
 									cardCount={column.cards.length}
 									onAddCard={() => setSelectedCardId(null)}
 									onUpdateName={(newName) => handleUpdateColumnName(column.id, newName)}
+									onUpdateColor={(newColor) => handleUpdateColumnColor(column.id, newColor)}
 								/>
 								<KanbanCards>
 									{column.cards.map((card, index) => (

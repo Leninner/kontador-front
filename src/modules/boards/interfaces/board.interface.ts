@@ -77,8 +77,9 @@ export interface BoardColumnCardComment {
 
 export interface CreateBoardColumnDto {
   name: string
-  description?: string
   boardId: string
+  description?: string
+  color?: string
 }
 
 export interface CreateBoardColumnCardCommentDto {
