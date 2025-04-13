@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { boardsService } from './boards.service'
 import { CreateBoardColumnDto, UpdateBoardColumnDto } from './interfaces/board.interface'
+import { toast } from 'sonner'
 
 export const useBoards = () => {
   const queryClient = useQueryClient()
@@ -14,6 +15,7 @@ export const useBoards = () => {
     mutationFn: (data: CreateBoardColumnDto) => boardsService.createColumn(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['board'] })
+      toast.success('Columna creada correctamente')
     },
   })
 
@@ -21,6 +23,7 @@ export const useBoards = () => {
     mutationFn: ({ id, data }: { id: string; data: UpdateBoardColumnDto }) => boardsService.updateColumn(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['board'] })
+      toast.success('Columna actualizada correctamente')
     },
   })
 
@@ -28,6 +31,7 @@ export const useBoards = () => {
     mutationFn: ({ id }: { id: string }) => boardsService.deleteColumn(board.data?.id || '', id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['board'] })
+      toast.success('Columna eliminada correctamente')
     },
   })
 

@@ -6,6 +6,8 @@ import {
   UpdateBoardColumnDto,
   BoardColumnCard,
   BoardColumnCardComment,
+  CreateBoardColumnCardCommentDto,
+  UpdateBoardColumnCardDto,
 } from './interfaces/board.interface'
 
 const BASE_URL = '/boards'
@@ -36,15 +38,13 @@ export const boardsService = {
     return response.data.data
   },
 
-  async updateCard(cardId: string, data: Partial<BoardColumnCard>) {
+  async updateCard(cardId: string, data: UpdateBoardColumnCardDto) {
     const response = await httpClient.put<{ data: BoardColumnCard }>(`${BASE_URL}/cards/${cardId}`, data)
     return response.data.data
   },
 
-  async addComment(cardId: string, content: string) {
-    const response = await httpClient.post<{ data: BoardColumnCardComment }>(`${BASE_URL}/cards/${cardId}/comments`, {
-      content,
-    })
+  async addComment(data: CreateBoardColumnCardCommentDto) {
+    const response = await httpClient.post<{ data: BoardColumnCardComment }>(`${BASE_URL}/comments`, data)
     return response.data.data
   },
 

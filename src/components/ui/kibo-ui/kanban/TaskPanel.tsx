@@ -5,11 +5,19 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Search, Send } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { BoardColumnCard, BoardColumnCardComment, BoardColumnCardHistory } from '@/modules/boards/interfaces/board.interface';
+import { HistoryActionType, UpdateBoardColumnCardDto, type BoardColumnCard, type BoardColumnCardComment, type BoardColumnCardHistory, type CreateBoardColumnCardCommentDto } from '@/modules/boards/interfaces/board.interface';
 import { useEffect, useState } from 'react';
 import { DateFormatter } from '@/lib/date-formatters';
+import { useCustomers } from '@/modules/customers/useCustomers';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
 
 const dateFormatter = DateFormatter.getInstance();
 
@@ -17,13 +25,17 @@ interface TaskPanelProps {
 	card: BoardColumnCard | null;
 	isOpen: boolean;
 	onClose: () => void;
-	onSave: (card: BoardColumnCard) => void;
+	onSave: (card: UpdateBoardColumnCardDto) => void;
+	onAddComment: (comment: CreateBoardColumnCardCommentDto) => void;
 }
 
-export const TaskPanel = ({ card, isOpen, onClose, onSave }: TaskPanelProps) => {
+export const TaskPanel = ({ card, isOpen, onClose, onSave, onAddComment }: TaskPanelProps) => {
 	const [editedCard, setEditedCard] = useState<BoardColumnCard | null>(null);
 	const [date, setDate] = useState<Date | undefined>(card?.dueDate ? new Date(card.dueDate) : undefined);
 	const [isEditingTitle, setIsEditingTitle] = useState(false);
+	const [searchQuery, setSearchQuery] = useState('');
+	const [newComment, setNewComment] = useState('');
+	const { customersData } = useCustomers({ search: searchQuery });
 
 	useEffect(() => {
 		setEditedCard(card);
@@ -34,10 +46,9 @@ export const TaskPanel = ({ card, isOpen, onClose, onSave }: TaskPanelProps) => 
 
 	const handleSave = () => {
 		if (editedCard) {
-			onSave(editedCard);
+			onSave(new UpdateBoardColumnCardDto(editedCard));
 		}
-
-		handleCancel()
+		handleCancel();
 	};
 
 	const handleInputChange = (field: keyof BoardColumnCard, value: string) => {
@@ -47,14 +58,14 @@ export const TaskPanel = ({ card, isOpen, onClose, onSave }: TaskPanelProps) => 
 		}));
 	};
 
-	const handleCustomerChange = (field: keyof typeof card.customer, value: string) => {
-		setEditedCard(prev => ({
-			...prev!,
-			customer: {
-				...prev!.customer,
-				[field]: value
-			}
-		}));
+	const handleCustomerChange = (customerId: string) => {
+		const selectedCustomer = customersData.data.find(c => c.id === customerId);
+		if (selectedCustomer) {
+			setEditedCard(prev => ({
+				...prev!,
+				customer: selectedCustomer
+			}));
+		}
 	};
 
 	const handleCancel = () => {
@@ -70,6 +81,24 @@ export const TaskPanel = ({ card, isOpen, onClose, onSave }: TaskPanelProps) => 
 			handleCancel();
 		}
 	};
+
+	const handleAddComment = () => {
+		if (!newComment.trim()) return;
+
+		const comment: CreateBoardColumnCardCommentDto = {
+			content: newComment,
+			cardId: card.id
+		};
+
+		onAddComment(comment);
+		setNewComment('');
+	};
+
+	const filteredCustomers = customersData.data.filter(customer =>
+		customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+		customer.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+		customer.documentId.toLowerCase().includes(searchQuery.toLowerCase())
+	);
 
 	return (
 		<div className="fixed inset-0 z-50">
@@ -103,81 +132,114 @@ export const TaskPanel = ({ card, isOpen, onClose, onSave }: TaskPanelProps) => 
 								</h2>
 							)}
 						</div>
-						<Button variant="ghost" size="sm" onClick={handleCancel}>
-							Close
-						</Button>
+
+						<div className="flex items-center gap-2">
+							<Button variant="ghost" size="sm" onClick={handleCancel}>
+								Cancelar
+							</Button>
+						</div>
+						<div className="flex items-center gap-2">
+							<Button size="sm" onClick={handleSave}>
+								Guardar
+							</Button>
+						</div>
+
 					</div>
 				</div>
 
 				{/* Content */}
 				<div className="flex-1 overflow-y-auto p-6">
-					{/* Customer Info */}
-					<div className="space-y-4">
-						<h3 className="text-sm font-medium">Customer Information</h3>
-						<div className="grid grid-cols-2 gap-4">
-							<div className="space-y-2">
-								<Label>Name</Label>
-								<Input
-									value={editedCard?.customer?.name || card.customer?.name || ''}
-									onChange={(e) => handleCustomerChange('name', e.target.value)}
-								/>
-							</div>
-							<div className="space-y-2">
-								<Label>Email</Label>
-								<Input
-									value={editedCard?.customer?.email || card.customer?.email || ''}
-									onChange={(e) => handleCustomerChange('email', e.target.value)}
-								/>
+					{/* Task Information */}
+					<div className="space-y-6">
+						<div className="space-y-4">
+							<div className="space-y-4">
+								{/* Customer Selection */}
+								<div className="grid grid-cols-3 gap-4 items-center">
+									<Label className="font-normal">Cliente</Label>
+									<Select
+										value={editedCard?.customer?.id}
+										onValueChange={handleCustomerChange}
+									>
+										<SelectTrigger>
+											<SelectValue placeholder="Selecciona un cliente" />
+										</SelectTrigger>
+										<SelectContent>
+											<div className="p-2">
+												<div className="relative">
+													<Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+													<Input
+														placeholder="Buscar cliente..."
+														value={searchQuery}
+														onChange={(e) => setSearchQuery(e.target.value)}
+														className="pl-8"
+													/>
+												</div>
+											</div>
+											{filteredCustomers.map((customer) => (
+												<SelectItem key={customer.id} value={customer.id}>
+													{customer.name} {customer.lastName} - {customer.documentId}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</div>
+
+								{/* Due Date */}
+								<div className="grid grid-cols-3 gap-4 items-center">
+									<Label className="font-normal">Fecha límite</Label>
+									<Popover>
+										<PopoverTrigger asChild>
+											<Button
+												variant="outline"
+												className={cn(
+													"h-8 justify-start text-left font-normal",
+													!date && "text-muted-foreground"
+												)}
+											>
+												<CalendarIcon className="mr-2 h-4 w-4" />
+												{date ? DateFormatter.getInstance().format(date) : <span>Seleccionar fecha</span>}
+											</Button>
+										</PopoverTrigger>
+										<PopoverContent className="w-auto p-0">
+											<Calendar
+												mode="single"
+												selected={date}
+												onSelect={(newDate) => {
+													setDate(newDate);
+													if (newDate) {
+														handleInputChange('dueDate', newDate.toISOString());
+													}
+												}}
+												initialFocus
+											/>
+										</PopoverContent>
+									</Popover>
+								</div>
 							</div>
 						</div>
-					</div>
 
-					{/* Due Date */}
-					<div className="space-y-2 mt-6">
-						<Label>Due Date</Label>
-						<Popover>
-							<PopoverTrigger asChild>
-								<Button
-									variant="outline"
-									className={cn(
-										"w-full justify-start text-left font-normal",
-										!date && "text-muted-foreground"
-									)}
-								>
-									<CalendarIcon className="mr-2 h-4 w-4" />
-									{date ? DateFormatter.getInstance().format(date) : <span>Pick a date</span>}
-								</Button>
-							</PopoverTrigger>
-							<PopoverContent className="w-auto p-0">
-								<Calendar
-									mode="single"
-									selected={date}
-									onSelect={setDate}
-									initialFocus
-								/>
-							</PopoverContent>
-						</Popover>
-					</div>
-
-					{/* Description */}
-					<div className="space-y-2 mt-6">
-						<Label>Description</Label>
-						<Textarea
-							value={editedCard?.description || card.description || ''}
-							onChange={(e) => handleInputChange('description', e.target.value)}
-							className="min-h-[100px]"
-							placeholder="Add a description..."
-						/>
+						{/* Description */}
+						<div className="space-y-2">
+							<div className="flex items-center justify-between">
+								<Label className="font-normal">Descripción</Label>
+							</div>
+							<Textarea
+								value={editedCard?.description || card.description || ''}
+								onChange={(e) => handleInputChange('description', e.target.value)}
+								className="min-h-[100px]"
+								placeholder="Add a description..."
+							/>
+						</div>
 					</div>
 				</div>
 
 				{/* Footer with Tabs */}
-				<div className="sticky bottom-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75">
-					<Tabs defaultValue="activity" className="w-full">
+				<div className="sticky bottom-0 border-t bg-white">
+					<Tabs defaultValue="comments" className="w-full">
 						<div className="border-b">
 							<TabsList className="w-full justify-start rounded-none border-b px-4">
-								<TabsTrigger value="activity" className="relative">Activity</TabsTrigger>
-								<TabsTrigger value="comments" className="relative">Comments</TabsTrigger>
+								<TabsTrigger value="comments" className="relative">Comentarios {card.comments?.length}</TabsTrigger>
+								<TabsTrigger value="activity" className="relative">Actividad {card.history?.length}</TabsTrigger>
 							</TabsList>
 						</div>
 
@@ -185,10 +247,38 @@ export const TaskPanel = ({ card, isOpen, onClose, onSave }: TaskPanelProps) => 
 							<TabsContent value="activity" className="mt-0">
 								<div className="space-y-4">
 									{card.history?.map((item: BoardColumnCardHistory) => (
-										<div key={item.id} className="flex items-start gap-4 p-4 border rounded-lg">
+										<div key={item.id} className="flex items-start gap-4 p-2 rounded-lg">
 											<div className="flex-1">
-												<p className="text-sm font-medium">{item.action}</p>
-												<p className="text-sm text-muted-foreground">{item.description}</p>
+												{
+													item.action === HistoryActionType.COMMENT_ADDED ? (
+														<span className='text-sm font-medium block mb-1 text-blue-600'>
+															Escribiste un comentario
+														</span>
+													) : item.action === HistoryActionType.MOVED ? (
+														<span className='text-sm font-medium block mb-1 text-amber-600'>
+															Se movió la tarjeta
+														</span>
+													) : item.action === HistoryActionType.CUSTOMER_LINKED ? (
+														<span className='text-sm font-medium block mb-1 text-green-600'>
+															Vinculaste un cliente
+														</span>
+													) : item.action === HistoryActionType.CUSTOMER_UNLINKED ? (
+														<span className='text-sm font-medium block mb-1 text-red-600'>
+															Desvinculaste un cliente
+														</span>
+													) : item.action === HistoryActionType.DUE_DATE_CHANGED ? (
+														<span className='text-sm font-medium block mb-1 text-purple-600'>
+															Cambiaste la fecha de vencimiento
+														</span>
+													) : (
+														<span className='text-sm font-medium block mb-1 text-gray-700'>
+															Cambiaste el nombre de la tarjeta
+														</span>
+													)
+												}
+												{item.description && (
+													<span className="text-sm text-muted-foreground block italic mb-1">{item.description}</span>
+												)}
 												<p className="text-xs text-muted-foreground">
 													{dateFormatter.format(new Date(item.createdAt))}
 												</p>
@@ -198,10 +288,10 @@ export const TaskPanel = ({ card, isOpen, onClose, onSave }: TaskPanelProps) => 
 								</div>
 							</TabsContent>
 
-							<TabsContent value="comments" className="mt-0">
-								<div className="space-y-4">
-									{card.comments?.map((comment: BoardColumnCardComment) => (
-										<div key={comment.id} className="flex items-start gap-4 p-4 border rounded-lg">
+							<TabsContent value="comments" className="mt-0 flex flex-col">
+								<div className="space-y-4 flex-1 overflow-y-auto mb-4">
+									{editedCard?.comments?.map((comment: BoardColumnCardComment) => (
+										<div key={comment.id} className="flex items-start gap-2">
 											<div className="flex-1">
 												<p className="text-sm">{comment.content}</p>
 												<p className="text-xs text-muted-foreground">
@@ -211,22 +301,29 @@ export const TaskPanel = ({ card, isOpen, onClose, onSave }: TaskPanelProps) => 
 										</div>
 									))}
 								</div>
+
+								<div className="sticky bottom-0 bg-white pt-2">
+									<div className="flex gap-2 items-center">
+										<Textarea
+											value={newComment}
+											onChange={(e) => setNewComment(e.target.value)}
+											placeholder="Escribe un comentario..."
+											className="min-h-[60px]"
+										/>
+
+										<Button
+											size="icon"
+											variant="ghost"
+											onClick={handleAddComment}
+											disabled={!newComment.trim()}
+										>
+											<Send className="h-4 w-4" />
+										</Button>
+									</div>
+								</div>
 							</TabsContent>
 						</div>
 					</Tabs>
-
-					<div className="container flex items-center justify-end gap-4 p-4 border-t">
-						<div className="flex items-center gap-2">
-							<Button variant="ghost" size="sm" onClick={handleCancel}>
-								Cancel
-							</Button>
-						</div>
-						<div className="flex items-center gap-2">
-							<Button size="sm" onClick={handleSave}>
-								Save Changes
-							</Button>
-						</div>
-					</div>
 				</div>
 			</div>
 		</div>

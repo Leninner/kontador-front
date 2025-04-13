@@ -35,11 +35,28 @@ export interface BoardColumnCard {
   name: string
   customer: Partial<Customer>
   dueDate: string
-  history?: BoardColumnCardHistory[]
-  comments?: BoardColumnCardComment[]
   createdAt: string
   updatedAt: string
   description?: string
+  history?: BoardColumnCardHistory[]
+  comments?: BoardColumnCardComment[]
+}
+
+export class UpdateBoardColumnCardDto {
+  id: string
+  name?: string
+  customerId?: string
+  dueDate?: string
+  description?: string
+  columnId?: string
+
+  constructor(card: BoardColumnCard) {
+    this.id = card.id
+    this.name = card.name
+    this.customerId = card.customer?.id
+    this.dueDate = card.dueDate
+    this.description = card.description
+  }
 }
 
 export interface BoardColumnCardHistory {
@@ -62,6 +79,11 @@ export interface CreateBoardColumnDto {
   name: string
   description?: string
   boardId: string
+}
+
+export interface CreateBoardColumnCardCommentDto {
+  content: string
+  cardId: string
 }
 
 export type UpdateBoardColumnDto = Partial<CreateBoardColumnDto>

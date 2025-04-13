@@ -9,7 +9,7 @@ import { TaskPanel } from '@/components/ui/kibo-ui/kanban/TaskPanel';
 import type { DragEndEvent } from '@/components/ui/kibo-ui/kanban';
 import { useState } from 'react';
 import { useBoards } from '../modules/boards/useBoards';
-import { BoardColumnCard } from '../modules/boards/interfaces/board.interface';
+import { BoardColumnCard, CreateBoardColumnCardCommentDto, UpdateBoardColumnCardDto } from '../modules/boards/interfaces/board.interface';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { KanbanHeader } from '../components/ui/kibo-ui/kanban/kanban-header';
@@ -24,7 +24,7 @@ export const BoardPage = () => {
 	const { boardData, createColumn, updateColumn } = useBoards();
 	const [features, setFeatures] = useState(boardData.columns);
 	const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
-	const { card: selectedCard } = useCards(selectedCardId || '');
+	const { card: selectedCard, addComment, updateCard } = useCards(selectedCardId || '');
 
 	const handleDragEnd = (event: DragEndEvent) => {
 		const { active, over } = event;
@@ -54,9 +54,8 @@ export const BoardPage = () => {
 		setSelectedCardId(card.id);
 	};
 
-	const handleSave = (card: BoardColumnCard) => {
-		// TODO: Implement card update mutation
-		console.log('Saving card:', card);
+	const handleSave = (card: UpdateBoardColumnCardDto) => {
+		updateCard.mutate(card);
 		setSelectedCardId(null);
 	};
 
@@ -74,6 +73,10 @@ export const BoardPage = () => {
 				name: newName
 			}
 		});
+	};
+
+	const handleAddComment = (data: CreateBoardColumnCardCommentDto) => {
+		addComment.mutate(data);
 	};
 
 	return (
@@ -113,7 +116,7 @@ export const BoardPage = () => {
 													</p>
 												</div>
 											</div>
-											<div className="flex flex-col items-end gap-1">
+											<div className="flex flex-col items-start gap-1">
 												<p className="m-0 text-muted-foreground text-xs">
 													{dateFormatter.format(new Date(card.dueDate))}
 												</p>
@@ -138,6 +141,7 @@ export const BoardPage = () => {
 				isOpen={!!selectedCardId}
 				onClose={() => setSelectedCardId(null)}
 				onSave={handleSave}
+				onAddComment={handleAddComment}
 			/>
 		</>
 	);
