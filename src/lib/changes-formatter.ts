@@ -31,6 +31,13 @@ interface DescriptionChange {
   }
 }
 
+interface ColumnChange {
+  oldColumnId: string
+  oldColumnName: string
+  newColumnId: string
+  newColumnName: string
+}
+
 export type HistoryChanges =
   | NameChange
   | DateChange
@@ -38,6 +45,7 @@ export type HistoryChanges =
   | CustomerChange
   | CommentChange
   | DescriptionChange
+  | ColumnChange
 
 export class ChangesFormatter {
   private static instance: ChangesFormatter
@@ -82,6 +90,10 @@ export class ChangesFormatter {
       return `Fecha cambiada de ${this.formatDate(oldDate)} a ${this.formatDate(newDate)}`
     }
 
+    if (this.isColumnChange(changes)) {
+      return `Movida de "${changes.oldColumnName}" a "${changes.newColumnName}"`
+    }
+
     return ''
   }
 
@@ -115,5 +127,9 @@ export class ChangesFormatter {
 
   private isDateChange(changes: HistoryChanges): changes is DateChange {
     return 'old' in changes && 'new' in changes && typeof changes.old === 'string' && !('name' in changes)
+  }
+
+  private isColumnChange(changes: HistoryChanges): changes is ColumnChange {
+    return 'oldColumnId' in changes && 'newColumnId' in changes
   }
 }

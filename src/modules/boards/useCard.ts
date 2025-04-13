@@ -15,11 +15,17 @@ export const useCards = (cardId: string) => {
   })
 
   const updateCard = useMutation({
-    mutationFn: (data: UpdateBoardColumnCardDto) => boardsService.updateCard(cardId, data),
+    mutationFn: (data: UpdateBoardColumnCardDto) => {
+      console.log('data', data)
+      return boardsService.updateCard(cardId, data)
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['card', cardId] })
       queryClient.invalidateQueries({ queryKey: ['board'] })
       toast.success('Tarjeta actualizada correctamente')
+    },
+    onError: () => {
+      toast.error('Error al actualizar la tarjeta')
     },
   })
 

@@ -16,40 +16,41 @@ import { KanbanHeader } from '../components/ui/kibo-ui/kanban/kanban-header';
 import { KanbanCard } from '../components/ui/kibo-ui/kanban/kanban-card';
 import { DateFormatter } from '@/lib/date-formatters';
 import { CreateColumnDialog } from '@/components/ui/kibo-ui/kanban/create-column-dialog';
+import { useCards } from '@/modules/boards/useCard';
 
 const dateFormatter = DateFormatter.getInstance();
 
 export const BoardPage = () => {
 	const { boardData, createColumn, updateColumn } = useBoards();
-	const [features, setFeatures] = useState(boardData.columns);
 	const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+	const { updateCard } = useCards(selectedCardId || '');
+	const [isTaskPanelOpen, setIsTaskPanelOpen] = useState(false);
 
 	const handleDragEnd = (event: DragEndEvent) => {
-		const { active, over } = event;
+		const { over, active } = event;
 
 		if (!over) {
 			return;
 		}
 
 		const column = boardData.columns.find((column) => column.name === over.id);
+		const card = column?.cards.find((card) => card.id === active.id);
 
-		if (!column) {
+		// If the card is in the same column, do nothing
+		if (!column || card) {
 			return;
 		}
 
-		setFeatures(
-			features.map((feature) => {
-				if (feature.id === active.id) {
-					return { ...feature, status: column };
-				}
+		setSelectedCardId(active.id as string);
 
-				return feature;
-			})
-		);
+		updateCard.mutate({
+			columnId: column.id
+		});
 	};
 
 	const handleCardClick = (card: BoardColumnCard) => {
 		setSelectedCardId(card.id);
+		setIsTaskPanelOpen(true);
 	};
 
 	const handleAddColumn = (name: string) => {
@@ -66,6 +67,10 @@ export const BoardPage = () => {
 				name: newName
 			}
 		});
+	};
+
+	const handleCloseTaskPanel = () => {
+		setIsTaskPanelOpen(false);
 	};
 
 	return (
@@ -125,8 +130,8 @@ export const BoardPage = () => {
 
 			<TaskPanel
 				cardId={selectedCardId || ''}
-				isOpen={!!selectedCardId}
-				onClose={() => setSelectedCardId(null)}
+				isOpen={isTaskPanelOpen}
+				onClose={handleCloseTaskPanel}
 			/>
 		</>
 	);
