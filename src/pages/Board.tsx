@@ -16,13 +16,15 @@ import { KanbanHeader } from '../components/ui/kibo-ui/kanban/kanban-header';
 import { KanbanCard } from '../components/ui/kibo-ui/kanban/kanban-card';
 import { DateFormatter } from '@/lib/date-formatters';
 import { CreateColumnDialog } from '@/components/ui/kibo-ui/kanban/create-column-dialog';
+import { useCards } from '../modules/boards/useCard';
 
 const dateFormatter = DateFormatter.getInstance();
 
 export const BoardPage = () => {
 	const { boardData, createColumn, updateColumn } = useBoards();
 	const [features, setFeatures] = useState(boardData.columns);
-	const [selectedFeature, setSelectedFeature] = useState<BoardColumnCard | null>(null);
+	const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+	const { card: selectedCard } = useCards(selectedCardId || '');
 
 	const handleDragEnd = (event: DragEndEvent) => {
 		const { active, over } = event;
@@ -49,12 +51,13 @@ export const BoardPage = () => {
 	};
 
 	const handleCardClick = (card: BoardColumnCard) => {
-		setSelectedFeature(card);
+		setSelectedCardId(card.id);
 	};
 
 	const handleSave = (card: BoardColumnCard) => {
-		console.log(card);
-		setSelectedFeature(null);
+		// TODO: Implement card update mutation
+		console.log('Saving card:', card);
+		setSelectedCardId(null);
 	};
 
 	const handleAddColumn = (name: string) => {
@@ -84,7 +87,7 @@ export const BoardPage = () => {
 									name={column.name}
 									color={column.color || 'yellow'}
 									cardCount={column.cards.length}
-									onAddCard={() => setSelectedFeature(null)}
+									onAddCard={() => setSelectedCardId(null)}
 									onUpdateName={(newName) => handleUpdateColumnName(column.id, newName)}
 								/>
 								<KanbanCards>
@@ -93,7 +96,6 @@ export const BoardPage = () => {
 											key={card.id}
 											id={card.id}
 											name={card.name}
-											description={card.description || ''}
 											parent={column.name}
 											index={index}
 											onClick={() => handleCardClick(card)}
@@ -104,16 +106,21 @@ export const BoardPage = () => {
 														{card.name}
 													</p>
 													<p className="m-0 text-muted-foreground text-xs">
+														{card.customer?.name}
+													</p>
+													<p className="m-0 text-muted-foreground text-xs">
 														{card.description}
 													</p>
 												</div>
 											</div>
-											<p className="m-0 text-muted-foreground text-xs">
-												{dateFormatter.format(new Date())}
-											</p>
+											<div className="flex flex-col items-end gap-1">
+												<p className="m-0 text-muted-foreground text-xs">
+													{dateFormatter.format(new Date(card.dueDate))}
+												</p>
+											</div>
 										</KanbanCard>
 									))}
-									<Button>
+									<Button variant="outline" className="w-full">
 										<Plus />
 										Nueva tarjeta
 									</Button>
@@ -127,9 +134,9 @@ export const BoardPage = () => {
 			</KanbanProvider>
 
 			<TaskPanel
-				card={selectedFeature}
-				isOpen={!!selectedFeature}
-				onClose={() => setSelectedFeature(null)}
+				card={selectedCard?.data || null}
+				isOpen={!!selectedCardId}
+				onClose={() => setSelectedCardId(null)}
 				onSave={handleSave}
 			/>
 		</>

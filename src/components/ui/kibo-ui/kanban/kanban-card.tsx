@@ -8,7 +8,6 @@ import type { ReactNode } from 'react';
 export type KanbanCardProps = {
 	id: string;
 	name: string;
-	description: string;
 	index: number;
 	parent: string;
 	children?: ReactNode;
@@ -19,7 +18,6 @@ export type KanbanCardProps = {
 export const KanbanCard = ({
 	id,
 	name,
-	description,
 	index,
 	parent,
 	children,
@@ -55,7 +53,6 @@ export const KanbanCard = ({
 			ref={setNodeRef}
 		>
 			{children ?? <p className="m-0 font-medium text-sm">{name}</p>}
-			<p className="m-0 text-muted-foreground text-xs">{description}</p>
 		</Card>
 	);
 }; 
