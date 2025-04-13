@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Customer } from '../../customers/customers.interface'
 
 export enum HistoryActionType {
@@ -8,6 +9,7 @@ export enum HistoryActionType {
   CUSTOMER_LINKED = 'CUSTOMER_LINKED',
   CUSTOMER_UNLINKED = 'CUSTOMER_UNLINKED',
   DUE_DATE_CHANGED = 'DUE_DATE_CHANGED',
+  COMMENT_DELETED = 'COMMENT_DELETED',
 }
 
 export interface Board {
@@ -59,7 +61,7 @@ export class UpdateBoardColumnCardDto {
 
 export interface BoardColumnCardHistory {
   id: string
-  changes: Record<string, unknown>
+  changes: Record<string, any>
   action: HistoryActionType
   createdAt: string
   updatedAt: string

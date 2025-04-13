@@ -20,8 +20,10 @@ import {
 } from '@/components/ui/select';
 import { useCards } from '@/modules/boards/useCard';
 import { toast } from 'sonner';
+import { ChangesFormatter, HistoryChanges } from '@/lib/changes-formatter';
 
 const dateFormatter = DateFormatter.getInstance();
+const changesFormatter = ChangesFormatter.getInstance();
 
 interface TaskPanelProps {
 	cardId: string;
@@ -33,7 +35,7 @@ export const TaskPanel = ({ cardId, isOpen, onClose }: TaskPanelProps) => {
 	const { card, updateCard, addComment, deleteComment } = useCards(cardId);
 
 	const [editedCard, setEditedCard] = useState<BoardColumnCard | null>(null);
-	const [date, setDate] = useState<Date | undefined>(card?.dueDate ? new Date(card.dueDate) : undefined);
+	const [date, setDate] = useState<Date | undefined>(undefined);
 	const [isEditingTitle, setIsEditingTitle] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [newComment, setNewComment] = useState('');
@@ -44,6 +46,7 @@ export const TaskPanel = ({ cardId, isOpen, onClose }: TaskPanelProps) => {
 	useEffect(() => {
 		setEditedCard(card || null);
 		setIsEditingTitle(false);
+		setDate(card?.dueDate ? new Date(card.dueDate) : undefined);
 	}, [card]);
 
 	if (!isOpen || !card) return null;
@@ -62,6 +65,8 @@ export const TaskPanel = ({ cardId, isOpen, onClose }: TaskPanelProps) => {
 	};
 
 	const handleInputChange = (field: keyof BoardColumnCard, value: string) => {
+		if (!editedCard) return;
+
 		setEditedCard(prev => ({
 			...prev!,
 			[field]: value
@@ -86,9 +91,26 @@ export const TaskPanel = ({ cardId, isOpen, onClose }: TaskPanelProps) => {
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === 'Enter') {
-			setIsEditingTitle(false);
+			const value = e.currentTarget.value.trim();
+			if (value) {
+				handleInputChange('name', value);
+				setIsEditingTitle(false);
+			}
 		} else if (e.key === 'Escape') {
 			handleCancel();
+		}
+	};
+
+	const handleTitleBlur = () => {
+		const value = editedCard?.name?.trim();
+		if (value) {
+			setIsEditingTitle(false);
+		} else {
+			setEditedCard(prev => ({
+				...prev!,
+				name: card.name
+			}));
+			setIsEditingTitle(false);
 		}
 	};
 
@@ -137,6 +159,46 @@ export const TaskPanel = ({ cardId, isOpen, onClose }: TaskPanelProps) => {
 		customer.documentId.toLowerCase().includes(searchQuery.toLowerCase())
 	);
 
+	const getActionMessage = (action: HistoryActionType) => {
+		const actionMessages = {
+			[HistoryActionType.COMMENT_ADDED]: {
+				text: 'Agregaste un comentario',
+				className: 'text-blue-600'
+			},
+			[HistoryActionType.MOVED]: {
+				text: 'Se movió la tarjeta',
+				className: 'text-amber-600'
+			},
+			[HistoryActionType.CUSTOMER_LINKED]: {
+				text: 'Vinculaste un cliente',
+				className: 'text-green-600'
+			},
+			[HistoryActionType.CUSTOMER_UNLINKED]: {
+				text: 'Desvinculaste un cliente',
+				className: 'text-red-600'
+			},
+			[HistoryActionType.DUE_DATE_CHANGED]: {
+				text: 'Cambiaste la fecha de vencimiento',
+				className: 'text-purple-600'
+			},
+			[HistoryActionType.UPDATED]: {
+				text: 'Actualizaste la tarjeta',
+				className: 'text-gray-700'
+			},
+			[HistoryActionType.COMMENT_DELETED]: {
+				text: 'Eliminaste un comentario',
+				className: 'text-red-600'
+			}
+		}
+
+		const message = actionMessages[action as keyof typeof actionMessages] || actionMessages[HistoryActionType.UPDATED]
+		return (
+			<span className={`text-sm font-medium block mb-1 ${message.className}`}>
+				{message.text}
+			</span>
+		)
+	}
+
 	return (
 		<div className="fixed inset-0 z-50">
 			{/* Overlay */}
@@ -153,10 +215,10 @@ export const TaskPanel = ({ cardId, isOpen, onClose }: TaskPanelProps) => {
 						<div className="flex-1 min-w-0 border hover:border-amber-950 border-transparent">
 							{isEditingTitle ? (
 								<Input
-									value={editedCard?.name || card.name}
+									value={editedCard?.name || ''}
 									onChange={(e) => handleInputChange('name', e.target.value)}
 									onKeyDown={handleKeyDown}
-									onBlur={() => setIsEditingTitle(false)}
+									onBlur={handleTitleBlur}
 									className="!text-2xl font-semibold border-none focus-visible:!ring-0 shadow-none h-[42px] px-0 md:!text-2xl"
 									autoFocus
 								/>
@@ -290,35 +352,11 @@ export const TaskPanel = ({ cardId, isOpen, onClose }: TaskPanelProps) => {
 									{card.history?.map((item: BoardColumnCardHistory) => (
 										<div key={item.id} className="flex items-start gap-4 p-2 rounded-lg">
 											<div className="flex-1">
-												{
-													item.action === HistoryActionType.COMMENT_ADDED ? (
-														<span className='text-sm font-medium block mb-1 text-blue-600'>
-															Escribiste un comentario
-														</span>
-													) : item.action === HistoryActionType.MOVED ? (
-														<span className='text-sm font-medium block mb-1 text-amber-600'>
-															Se movió la tarjeta
-														</span>
-													) : item.action === HistoryActionType.CUSTOMER_LINKED ? (
-														<span className='text-sm font-medium block mb-1 text-green-600'>
-															Vinculaste un cliente
-														</span>
-													) : item.action === HistoryActionType.CUSTOMER_UNLINKED ? (
-														<span className='text-sm font-medium block mb-1 text-red-600'>
-															Desvinculaste un cliente
-														</span>
-													) : item.action === HistoryActionType.DUE_DATE_CHANGED ? (
-														<span className='text-sm font-medium block mb-1 text-purple-600'>
-															Cambiaste la fecha de vencimiento
-														</span>
-													) : (
-														<span className='text-sm font-medium block mb-1 text-gray-700'>
-															Cambiaste el nombre de la tarjeta
-														</span>
-													)
-												}
+												{item.action && getActionMessage(item.action)}
 												{item.description && (
-													<span className="text-sm text-muted-foreground block italic mb-1">{item.description}</span>
+													<span className="text-sm text-muted-foreground block italic mb-1">
+														{changesFormatter.formatChanges(item.changes as HistoryChanges)}
+													</span>
 												)}
 												<p className="text-xs text-muted-foreground">
 													{dateFormatter.format(new Date(item.createdAt))}
