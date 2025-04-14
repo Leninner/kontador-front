@@ -3,8 +3,6 @@ import { customersService } from './customers.service'
 import { CreateCustomerDto, UpdateCustomerDto, FindAllCustomersDto } from './customers.interface'
 
 export const useCustomers = (query?: FindAllCustomersDto) => {
-  console.log(query)
-
   const queryClient = useQueryClient()
 
   const customers = useQuery({

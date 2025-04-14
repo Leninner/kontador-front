@@ -23,18 +23,23 @@ export const boardsService = {
     return response.data
   },
 
-  async updateColumn(columnId: string, data: UpdateBoardColumnDto) {
+  async updateColumn(columnId: string, data: Partial<UpdateBoardColumnDto>) {
     const response = await httpClient.put<{ data: BoardColumn }>(`${BASE_URL}/columns/${columnId}`, data)
-    return response.data
+    return response.data.data
   },
 
   async deleteColumn(boardId: string, columnId: string) {
     const response = await httpClient.delete<{ data: BoardColumn }>(`${BASE_URL}/${boardId}/columns/${columnId}`)
-    return response.data
+    return response.data.data
   },
 
   async getCardDetails(cardId: string) {
     const response = await httpClient.get<{ data: BoardColumnCard }>(`${BASE_URL}/cards/${cardId}`)
+    return response.data.data
+  },
+
+  async createCard(data: { name: string; description: string; dueDate: Date; columnId: string }) {
+    const response = await httpClient.post<{ data: BoardColumnCard }>(`${BASE_URL}/cards`, data)
     return response.data.data
   },
 

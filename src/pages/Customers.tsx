@@ -15,8 +15,6 @@ export const CustomersPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const { handlePaginationChange, page, limit } = useTablePagination()
 
-  console.log(page, limit)
-
   const { customersData, isLoading, createCustomer } = useCustomers({
     page,
     limit,

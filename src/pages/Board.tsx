@@ -6,21 +6,21 @@ import type { DragEndEvent } from '@/components/ui/kibo-ui/kanban'
 import { useState } from 'react'
 import { useBoards } from '../modules/boards/useBoards'
 import { BoardColumnCard } from '../modules/boards/interfaces/board.interface'
-import { Button } from '@/components/ui/button'
-import { Plus } from 'lucide-react'
 import { KanbanHeader } from '../components/ui/kibo-ui/kanban/kanban-header'
 import { KanbanCard } from '../components/ui/kibo-ui/kanban/kanban-card'
 import { DateFormatter } from '@/lib/date-formatters'
 import { CreateColumnDialog } from '@/components/ui/kibo-ui/kanban/create-column-dialog'
 import { useCards } from '@/modules/boards/useCard'
+import { CreateCardForm } from '@/components/ui/kibo-ui/kanban/create-card-form'
 
 const dateFormatter = DateFormatter.getInstance()
 
 export const BoardPage = () => {
   const { boardData, createColumn, updateColumn } = useBoards()
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null)
-  const { updateCard } = useCards(selectedCardId || '')
+  const { updateCard, createCard } = useCards(selectedCardId || '')
   const [isTaskPanelOpen, setIsTaskPanelOpen] = useState(false)
+  const [activeFormColumnId, setActiveFormColumnId] = useState<string | null>(null)
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { over, active } = event
@@ -76,6 +76,13 @@ export const BoardPage = () => {
     setIsTaskPanelOpen(false)
   }
 
+  const handleCreateCard = (columnId: string, cardData: { name: string; description: string; dueDate: Date }) => {
+    createCard.mutate({
+      ...cardData,
+      columnId,
+    })
+  }
+
   return (
     <>
       <KanbanProvider onDragEnd={handleDragEnd} className="p-4">
@@ -104,7 +111,6 @@ export const BoardPage = () => {
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex flex-col gap-1">
                           <p className="m-0 flex-1 font-medium text-sm">{card.name}</p>
-
                           <p className="m-0 text-muted-foreground text-xs">{card.description}</p>
                         </div>
                       </div>
@@ -117,10 +123,11 @@ export const BoardPage = () => {
                       </div>
                     </KanbanCard>
                   ))}
-                  <Button variant="outline" className="w-full">
-                    <Plus />
-                    Nueva tarjeta
-                  </Button>
+                  <CreateCardForm
+                    onSave={(cardData) => handleCreateCard(column.id, cardData)}
+                    isOpen={activeFormColumnId === column.id}
+                    onOpenChange={(isOpen) => setActiveFormColumnId(isOpen ? column.id : null)}
+                  />
                 </KanbanCards>
               </>
             ) : (

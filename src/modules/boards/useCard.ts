@@ -4,8 +4,6 @@ import { CreateBoardColumnCardCommentDto, UpdateBoardColumnCardDto } from './int
 import { toast } from 'sonner'
 
 export const useCards = (cardId: string) => {
-  console.log('cardId', cardId)
-
   const queryClient = useQueryClient()
 
   const { data: card } = useQuery({
@@ -16,7 +14,6 @@ export const useCards = (cardId: string) => {
 
   const updateCard = useMutation({
     mutationFn: (data: UpdateBoardColumnCardDto) => {
-      console.log('data', data)
       return boardsService.updateCard(cardId, data)
     },
     onSuccess: () => {
@@ -25,7 +22,20 @@ export const useCards = (cardId: string) => {
       toast.success('Tarjeta actualizada correctamente')
     },
     onError: () => {
-      toast.error('Error al actualizar la tarjeta')
+      toast.error('Error actualizando tarjeta')
+    },
+  })
+
+  const createCard = useMutation({
+    mutationFn: (data: { name: string; description: string; dueDate: Date; columnId: string }) => {
+      return boardsService.createCard(data)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['board'] })
+      toast.success('Tarjeta creada correctamente')
+    },
+    onError: () => {
+      toast.error('Error creando tarjeta')
     },
   })
 
@@ -66,6 +76,7 @@ export const useCards = (cardId: string) => {
   return {
     card,
     updateCard,
+    createCard,
     addComment,
     deleteComment,
     linkCustomer,
