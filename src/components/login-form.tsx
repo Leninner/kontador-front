@@ -1,36 +1,34 @@
-import { useState, FormEvent } from 'react';
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Link } from 'react-router-dom';
+import { useState, FormEvent } from 'react'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Link } from 'react-router-dom'
 
 interface LoginFormProps {
-  onSubmit: (email: string, password: string) => Promise<void>;
+  onSubmit: (email: string, password: string) => Promise<void>
 }
 
 export const LoginForm = ({ onSubmit }: LoginFormProps) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsLoading(true);
+    e.preventDefault()
+    setIsLoading(true)
     try {
-      await onSubmit(email, password);
+      await onSubmit(email, password)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
-    <form onSubmit={handleSubmit} className={cn("flex flex-col gap-6")}>
+    <form onSubmit={handleSubmit} className={cn('flex flex-col gap-6')}>
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Ingresa a tu cuenta</h1>
-        <p className="text-muted-foreground text-sm text-balance">
-          Ingresa tu email para acceder a tu cuenta
-        </p>
+        <p className="text-muted-foreground text-sm text-balance">Ingresa tu email para acceder a tu cuenta</p>
       </div>
       <div className="grid gap-6">
         <div className="grid gap-3">
@@ -60,7 +58,7 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
         </Button>
       </div>
       <div className="text-center text-sm">
-        No tienes una cuenta?{" "}
+        No tienes una cuenta?{' '}
         <Link to="/register" className="text-primary underline">
           Registrate
         </Link>

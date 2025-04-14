@@ -1,20 +1,20 @@
-'use client';
+'use client'
 
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Login } from './pages/Login';
-import { Register } from './pages/Register';
-import { Dashboard } from './pages/Dashboard';
-import { PublicRoute } from './components/auth/PublicRoute';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { Login } from './pages/Login'
+import { Register } from './pages/Register'
+import { Dashboard } from './pages/Dashboard'
+import { PublicRoute } from './components/auth/PublicRoute'
 import { Toaster } from './components/ui/sonner.tsx'
-import { CustomersPage } from './pages/Customers';
-import { CustomerDetail } from './pages/CustomerDetail';
-import { BoardPage } from './pages/Board';
+import { CustomersPage } from './pages/Customers'
+import { CustomerDetail } from './pages/CustomerDetail'
+import { BoardPage } from './pages/Board'
 import { QueryProvider } from './providers/query-provider'
-import { AppLayout } from './components/ui/layout.tsx';
+import { AppLayout } from './components/ui/layout.tsx'
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <AppLayout>{children}</AppLayout>
-};
+}
 
 const App = () => {
   return (
@@ -74,7 +74,7 @@ const App = () => {
       </Router>
       <Toaster richColors closeButton position="top-right" />
     </QueryProvider>
-  );
-};
+  )
+}
 
-export default App;
+export default App
