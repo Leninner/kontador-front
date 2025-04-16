@@ -10,6 +10,7 @@ import { useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { ArrowLeft, Edit2 } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
+import { InvoiceList } from '@/modules/invoices/invoice-list'
 
 export const CustomerDetail = () => {
   const { id } = useParams<{ id: string }>()
@@ -18,7 +19,7 @@ export const CustomerDetail = () => {
   const customer = customersData.data.find((c: Customer) => c.id === id)
 
   if (!customer) {
-    return <div>Customer not found</div>
+    return <div>Cliente no encontrado</div>
   }
 
   const handleUpdate = async (data: UpdateCustomerDto) => {
@@ -38,18 +39,18 @@ export const CustomerDetail = () => {
           className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors w-fit"
         >
           <ArrowLeft className="size-4" />
-          <span>Back to Customers</span>
+          <span>Volver a Clientes</span>
         </Link>
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" className="gap-2 w-full sm:w-auto">
               <Edit2 className="size-4" />
-              Edit Customer
+              Editar Cliente
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Edit Customer</DialogTitle>
+              <DialogTitle>Editar Cliente</DialogTitle>
             </DialogHeader>
             <CustomerForm initialData={customer} onSubmit={handleUpdate as any} isLoading={updateCustomer.isPending} />
           </DialogContent>
@@ -67,15 +68,15 @@ export const CustomerDetail = () => {
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <div className="space-y-1">
-                <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Document Type</h3>
+                <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Tipo de Documento</h3>
                 <p className="text-base sm:text-lg">{customer.documentType}</p>
               </div>
               <div className="space-y-1">
-                <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Document Number</h3>
+                <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Número de Documento</h3>
                 <p className="text-base sm:text-lg">{customer.documentId}</p>
               </div>
               <div className="space-y-1">
-                <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Created At</h3>
+                <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Fecha de Creación</h3>
                 <p className="text-base sm:text-lg">{new Date(customer.createdAt).toLocaleDateString()}</p>
               </div>
             </div>
@@ -85,8 +86,15 @@ export const CustomerDetail = () => {
         <Separator className="my-4 sm:my-6" />
 
         <div className="space-y-4">
-          <h2 className="text-xl sm:text-2xl font-semibold">Documents</h2>
+          <h2 className="text-xl sm:text-2xl font-semibold">Documentos</h2>
           <CustomerDocuments customerId={customer.id} />
+        </div>
+
+        <Separator className="my-4 sm:my-6" />
+
+        <div className="space-y-4">
+          <h2 className="text-xl sm:text-2xl font-semibold">Facturas</h2>
+          <InvoiceList customerId={customer.id} />
         </div>
       </div>
     </div>

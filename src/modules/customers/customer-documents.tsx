@@ -61,12 +61,12 @@ export function CustomerDocuments({ customerId }: CustomerDocumentsProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Customer Documents</CardTitle>
-        <CardDescription>Upload and manage customer documents</CardDescription>
+        <CardTitle>Documentos del Cliente</CardTitle>
+        <CardDescription>Subir y gestionar documentos del cliente</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid w-full max-w-sm items-center gap-1.5">
-          <Label htmlFor="documents">Documents</Label>
+          <Label htmlFor="documents">Documentos</Label>
           <Input
             id="documents"
             type="file"
@@ -78,7 +78,7 @@ export function CustomerDocuments({ customerId }: CustomerDocumentsProps) {
 
         {files.length > 0 && (
           <div className="space-y-2">
-            <h3 className="font-medium">Selected Files:</h3>
+            <h3 className="font-medium">Archivos seleccionados:</h3>
             <ul className="list-disc list-inside">
               {files.map((file, index) => (
                 <li key={index} className="text-sm text-muted-foreground">
@@ -87,16 +87,16 @@ export function CustomerDocuments({ customerId }: CustomerDocumentsProps) {
               ))}
             </ul>
             <Button onClick={handleUpload} disabled={uploadMutation.isPending}>
-              {uploadMutation.isPending ? 'Uploading...' : 'Upload Files'}
+              {uploadMutation.isPending ? 'Subiendo...' : 'Subir Archivos'}
             </Button>
           </div>
         )}
 
         <div className="mt-8">
-          <h3 className="font-medium mb-4">Uploaded Documents</h3>
+          <h3 className="font-medium mb-4">Documentos subidos</h3>
           <div className="grid gap-4">
             {isLoading ? (
-              <p className="text-sm text-muted-foreground">Loading documents...</p>
+              <p className="text-sm text-muted-foreground">Cargando documentos...</p>
             ) : documents.length > 0 ? (
               documents.map((doc: CustomerDocument) => (
                 <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg">
@@ -106,7 +106,7 @@ export function CustomerDocuments({ customerId }: CustomerDocumentsProps) {
                   </div>
                   <div className="flex items-center gap-2">
                     <Button variant="ghost" size="icon" onClick={() => window.open(doc.url, '_blank')}>
-                      View
+                      Ver
                     </Button>
                     <Button
                       variant="ghost"
@@ -120,7 +120,7 @@ export function CustomerDocuments({ customerId }: CustomerDocumentsProps) {
                 </div>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground">No documents uploaded yet</p>
+              <p className="text-sm text-muted-foreground">No hay documentos subidos aún</p>
             )}
           </div>
         </div>
