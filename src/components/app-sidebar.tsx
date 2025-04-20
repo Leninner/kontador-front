@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Command, Home, LifeBuoy, List, Send, Users } from 'lucide-react'
+import { Command, Home, LifeBuoy, List, Send, Users, File } from 'lucide-react'
 
 import { NavMain } from '@/components/nav-main'
 import { NavSecondary } from '@/components/nav-secondary'
@@ -33,6 +33,11 @@ const data = {
       title: 'Clientes',
       url: '/customers',
       icon: Users,
+    },
+    {
+      title: 'Declaraciones',
+      url: '/declarations',
+      icon: File,
     },
   ],
   navSecondary: [

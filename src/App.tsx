@@ -11,6 +11,7 @@ import { CustomerDetail } from './pages/CustomerDetail'
 import { BoardPage } from './pages/Board'
 import { QueryProvider } from './providers/query-provider'
 import { AppLayout } from './components/ui/layout.tsx'
+import { DeclarationsPage } from './pages/Declarations'
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <AppLayout>{children}</AppLayout>
@@ -66,6 +67,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <BoardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/declarations"
+            element={
+              <ProtectedRoute>
+                <DeclarationsPage />
               </ProtectedRoute>
             }
           />
