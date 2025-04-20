@@ -168,3 +168,7 @@ export interface CreateColumnRulesDto {
 export interface UpdateColumnRulesDto {
   rules: Partial<CreateRuleDto>[]
 }
+
+export * from './card.interface'
+export * from './comment.interface'
+export * from './rule.interface'

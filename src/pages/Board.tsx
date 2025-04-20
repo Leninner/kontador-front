@@ -4,13 +4,14 @@ import { KanbanBoard, KanbanCards, KanbanProvider } from '@/components/ui/kibo-u
 import { TaskPanel } from '@/components/ui/kibo-ui/kanban/TaskPanel'
 import type { DragEndEvent } from '@/components/ui/kibo-ui/kanban'
 import { useState } from 'react'
-import { useBoards } from '../modules/boards/useBoards'
-import { BoardColumnCard, CreateColumnRulesDto } from '../modules/boards/interfaces/board.interface'
-import { KanbanHeader } from '../components/ui/kibo-ui/kanban/kanban-header'
-import { KanbanCard } from '../components/ui/kibo-ui/kanban/kanban-card'
+import { useBoards } from '@/modules/boards'
+import { BoardColumnCard, CreateColumnRulesDto } from '@/modules/boards/interfaces/board.interface'
+import { KanbanHeader } from '@/components/ui/kibo-ui/kanban/kanban-header'
+import { KanbanCard } from '@/components/ui/kibo-ui/kanban/kanban-card'
 import { DateFormatter } from '@/lib/date-formatters'
 import { CreateColumnDialog } from '@/components/ui/kibo-ui/kanban/create-column-dialog'
-import { useCards } from '@/modules/boards/useCard'
+import { useCard } from '@/modules/boards/hooks/useCard'
+import { useColumnRules } from '@/modules/boards/hooks/useColumnRules'
 import { CreateCardForm } from '@/components/ui/kibo-ui/kanban/create-card-form'
 import { ColumnRulesModal } from '@/components/ColumnRulesModal'
 import { ColumnRules, Rule } from '@/modules/boards/interfaces/board.interface'
@@ -20,10 +21,11 @@ import { useQueryClient } from '@tanstack/react-query'
 const dateFormatter = DateFormatter.getInstance()
 
 export const BoardPage = () => {
-  const { boardData, createColumn, updateColumn, updateColumnRules } = useBoards()
+  const { boardData, createColumn, updateColumn } = useBoards()
+  const { updateColumnRules } = useColumnRules()
   const queryClient = useQueryClient()
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null)
-  const { updateCard, createCard } = useCards(selectedCardId || '')
+  const { updateCard, createCard } = useCard(selectedCardId || '')
   const [isTaskPanelOpen, setIsTaskPanelOpen] = useState(false)
   const [activeFormColumnId, setActiveFormColumnId] = useState<string | null>(null)
   const [columnRulesModalState, setColumnRulesModalState] = useState<{
@@ -56,7 +58,10 @@ export const BoardPage = () => {
     setSelectedCardId(active.id as string)
 
     updateCard.mutate({
-      columnId: column.id,
+      id: active.id as string,
+      data: {
+        columnId: column.id,
+      },
     })
   }
 

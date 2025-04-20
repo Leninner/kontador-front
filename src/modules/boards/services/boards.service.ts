@@ -8,7 +8,7 @@ import {
   BoardColumnCardComment,
   CreateBoardColumnCardCommentDto,
   UpdateBoardColumnCardDto,
-} from './interfaces/board.interface'
+} from '../interfaces/board.interface'
 
 const BASE_URL = '/boards'
 
@@ -70,3 +70,6 @@ export const boardsService = {
     return response.data.data
   },
 }
+
+export * from './card.service'
+export * from './comment.service'

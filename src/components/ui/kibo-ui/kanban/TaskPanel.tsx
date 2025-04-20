@@ -19,8 +19,9 @@ import { useEffect, useState } from 'react'
 import { DateFormatter } from '@/lib/date-formatters'
 import { useCustomers } from '@/modules/customers/useCustomers'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useCards } from '@/modules/boards/useCard'
+import { useCard } from '@/modules/boards/hooks/useCard'
 import { ChangesFormatter, HistoryChanges } from '@/lib/changes-formatter'
+import { useComment } from '@/modules/boards/hooks/useComment'
 
 const dateFormatter = DateFormatter.getInstance()
 const changesFormatter = ChangesFormatter.getInstance()
@@ -32,7 +33,8 @@ interface TaskPanelProps {
 }
 
 export const TaskPanel = ({ cardId, isOpen, onClose }: TaskPanelProps) => {
-  const { card, updateCard, addComment, deleteComment } = useCards(cardId)
+  const { card, updateCard } = useCard(cardId)
+  const { addComment, deleteComment } = useComment()
 
   const [editedCard, setEditedCard] = useState<BoardColumnCard | null>(null)
   const [date, setDate] = useState<Date | undefined>(undefined)
@@ -53,7 +55,7 @@ export const TaskPanel = ({ cardId, isOpen, onClose }: TaskPanelProps) => {
 
   const handleSave = () => {
     if (editedCard) {
-      updateCard.mutate(new UpdateBoardColumnCardDto(editedCard))
+      updateCard.mutate({ id: card.id, data: new UpdateBoardColumnCardDto(editedCard) })
     }
   }
 
