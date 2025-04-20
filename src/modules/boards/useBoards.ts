@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { boardsService } from './boards.service'
-import { CreateBoardColumnDto, UpdateBoardColumnDto } from './interfaces/board.interface'
+import { CreateBoardColumnDto, UpdateBoardColumnDto, CreateColumnRulesDto } from './interfaces/board.interface'
 import { toast } from 'sonner'
 
 export const useBoards = () => {
@@ -35,6 +35,18 @@ export const useBoards = () => {
     },
   })
 
+  const updateColumnRules = useMutation({
+    mutationFn: ({ id, rules }: { id: string; rules: CreateColumnRulesDto }) =>
+      boardsService.updateColumn(id, { rules }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['board'] })
+      toast.success('Reglas actualizadas correctamente')
+    },
+    onError: () => {
+      toast.error('Error al actualizar las reglas')
+    },
+  })
+
   const ADD_NEW_COLUMN = {
     id: '',
     name: 'Añadir nueva sección',
@@ -55,5 +67,6 @@ export const useBoards = () => {
     createColumn,
     updateColumn,
     deleteColumn,
+    updateColumnRules,
   }
 }

@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
-import { Check, MoreHorizontal, Pencil, Plus, X } from 'lucide-react'
+import { Check, MoreHorizontal, Pencil, X } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useState } from 'react'
 
@@ -15,7 +15,6 @@ export type KanbanHeaderProps = {
   color?: string
   className?: string
   cardCount?: number
-  onAddCard?: () => void
   onDeleteColumn?: () => void
   onMoveLeft?: () => void
   onMoveRight?: () => void
@@ -30,7 +29,6 @@ export const KanbanHeader = ({
   color,
   className,
   cardCount = 0,
-  onAddCard,
   onDeleteColumn,
   onMoveLeft,
   onMoveRight,
@@ -115,9 +113,6 @@ export const KanbanHeader = ({
         <span className="text-muted-foreground text-xs">({cardCount})</span>
       </div>
       <div className="flex items-center gap-1">
-        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onAddCard}>
-          <Plus className="h-4 w-4" />
-        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="h-6 w-6">
@@ -156,17 +151,17 @@ export const KanbanHeader = ({
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Rules</label>
+                <label className="text-sm font-medium">Reglas</label>
                 <Button variant="outline" className="w-full" onClick={onEditRules}>
-                  Edit Rules
+                  Editar reglas
                 </Button>
               </div>
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                Cancel
+                Cancelar
               </Button>
-              <Button onClick={handleSaveChanges}>Save Changes</Button>
+              <Button onClick={handleSaveChanges}>Guardar cambios</Button>
             </div>
           </DialogContent>
         </Dialog>

@@ -5,22 +5,38 @@ import { TaskPanel } from '@/components/ui/kibo-ui/kanban/TaskPanel'
 import type { DragEndEvent } from '@/components/ui/kibo-ui/kanban'
 import { useState } from 'react'
 import { useBoards } from '../modules/boards/useBoards'
-import { BoardColumnCard } from '../modules/boards/interfaces/board.interface'
+import { BoardColumnCard, CreateColumnRulesDto } from '../modules/boards/interfaces/board.interface'
 import { KanbanHeader } from '../components/ui/kibo-ui/kanban/kanban-header'
 import { KanbanCard } from '../components/ui/kibo-ui/kanban/kanban-card'
 import { DateFormatter } from '@/lib/date-formatters'
 import { CreateColumnDialog } from '@/components/ui/kibo-ui/kanban/create-column-dialog'
 import { useCards } from '@/modules/boards/useCard'
 import { CreateCardForm } from '@/components/ui/kibo-ui/kanban/create-card-form'
+import { ColumnRulesModal } from '@/components/ColumnRulesModal'
+import { ColumnRules, Rule } from '@/modules/boards/interfaces/board.interface'
+import { toast } from 'sonner'
+import { useQueryClient } from '@tanstack/react-query'
 
 const dateFormatter = DateFormatter.getInstance()
 
 export const BoardPage = () => {
-  const { boardData, createColumn, updateColumn } = useBoards()
+  const { boardData, createColumn, updateColumn, updateColumnRules } = useBoards()
+  const queryClient = useQueryClient()
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null)
   const { updateCard, createCard } = useCards(selectedCardId || '')
   const [isTaskPanelOpen, setIsTaskPanelOpen] = useState(false)
   const [activeFormColumnId, setActiveFormColumnId] = useState<string | null>(null)
+  const [columnRulesModalState, setColumnRulesModalState] = useState<{
+    open: boolean
+    columnId: string
+    columnName: string
+    rules?: ColumnRules
+  }>({
+    open: false,
+    columnId: '',
+    columnName: '',
+    rules: undefined,
+  })
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { over, active } = event
@@ -83,6 +99,74 @@ export const BoardPage = () => {
     })
   }
 
+  const handleEditRules = (columnId: string) => {
+    const column = boardData.columns.find((col) => col.id === columnId)
+    if (!column) return
+
+    // Convert from old format to new format if needed
+    const columnWithRules = column as { rules?: Record<string, unknown> }
+    let rules = columnWithRules.rules as ColumnRules | undefined
+
+    // If rules exist but in old format (has triggers/actions arrays), convert them
+    if (rules && 'triggers' in rules && 'actions' in rules && !('rules' in rules)) {
+      const oldRules = rules as unknown as {
+        enabled: boolean
+        triggers: Array<{ type: string; config?: Record<string, unknown> }>
+        conditions: Array<{ type: string; config?: Record<string, unknown> }>
+        actions: Array<{ type: string; config?: Record<string, unknown> }>
+      }
+
+      // Create a new Rule object for each trigger-action pair
+      const newRules: Rule[] = []
+
+      // If there's at least one trigger and one action, create a rule
+      if (oldRules.triggers.length > 0 && oldRules.actions.length > 0) {
+        const trigger = oldRules.triggers[0]
+        const action = oldRules.actions[0]
+
+        newRules.push({
+          id: 'rule-1',
+          name: 'Automated Rule',
+          enabled: true,
+          trigger: { type: trigger.type, config: trigger.config || {} },
+          conditions: oldRules.conditions,
+          action: { type: action.type, config: action.config || {} },
+        })
+      }
+
+      // Create the new rules structure
+      rules = {
+        enabled: oldRules.enabled,
+        rules: newRules,
+      }
+    }
+
+    setColumnRulesModalState({
+      open: true,
+      columnId: column.id,
+      columnName: column.name,
+      rules: rules,
+    })
+  }
+
+  const handleSaveRules = async (columnId: string, rules: CreateColumnRulesDto) => {
+    try {
+      await updateColumnRules.mutate({ id: columnId, rules })
+
+      toast.success('Reglas actualizadas', {
+        description: 'Las reglas de la columna se han actualizado correctamente',
+      })
+
+      // Invalidate the board query to refresh data
+      queryClient.invalidateQueries({ queryKey: ['board'] })
+    } catch (error) {
+      console.error('Error al actualizar las reglas:', error)
+      toast.error('Error al actualizar las reglas', {
+        description: 'Ocurrió un error al actualizar las reglas de la columna',
+      })
+    }
+  }
+
   return (
     <>
       <KanbanProvider onDragEnd={handleDragEnd} className="p-4">
@@ -94,9 +178,9 @@ export const BoardPage = () => {
                   name={column.name}
                   color={column.color || '#000000'}
                   cardCount={column.cards.length}
-                  onAddCard={() => setSelectedCardId(null)}
                   onUpdateName={(newName) => handleUpdateColumnName(column.id, newName)}
                   onUpdateColor={(newColor) => handleUpdateColumnColor(column.id, newColor)}
+                  onEditRules={() => handleEditRules(column.id)}
                 />
                 <KanbanCards>
                   {column.cards.map((card, index) => (
@@ -124,9 +208,11 @@ export const BoardPage = () => {
                     </KanbanCard>
                   ))}
                   <CreateCardForm
-                    onSave={(cardData) => handleCreateCard(column.id, cardData)}
+                    onSave={(cardData: { name: string; description: string; dueDate: Date }) =>
+                      handleCreateCard(column.id, cardData)
+                    }
                     isOpen={activeFormColumnId === column.id}
-                    onOpenChange={(isOpen) => setActiveFormColumnId(isOpen ? column.id : null)}
+                    onOpenChange={(isOpen: boolean) => setActiveFormColumnId(isOpen ? column.id : null)}
                   />
                 </KanbanCards>
               </>
@@ -138,6 +224,15 @@ export const BoardPage = () => {
       </KanbanProvider>
 
       <TaskPanel cardId={selectedCardId || ''} isOpen={isTaskPanelOpen} onClose={handleCloseTaskPanel} />
+
+      <ColumnRulesModal
+        open={columnRulesModalState.open}
+        onOpenChange={(open) => setColumnRulesModalState((prev) => ({ ...prev, open }))}
+        columnId={columnRulesModalState.columnId}
+        columnName={columnRulesModalState.columnName}
+        initialRules={columnRulesModalState.rules}
+        onSave={handleSaveRules}
+      />
     </>
   )
 }
