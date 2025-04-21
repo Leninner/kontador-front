@@ -40,6 +40,8 @@ export const declarationsService = {
     })
     const url = `${BASE_URL}?${queryString.toString()}`
     const response = await httpClient.get<ApiResponse<Declaration[]>>(url)
+
+    console.log(response.data.data)
     return {
       data: response.data.data,
       meta: response.data.meta || {

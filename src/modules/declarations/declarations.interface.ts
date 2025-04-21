@@ -1,6 +1,7 @@
 export interface Declaration {
   id: string
   formType: string
+  items: DeclarationItem[]
   period: string
   status: 'draft' | 'submitted' | 'approved' | 'rejected'
   submittedDate?: string
@@ -26,6 +27,7 @@ export interface DeclarationItem {
 export interface CreateDeclarationDto {
   formType: string
   period: string
+  customerId: string
   items: {
     description: string
     code: string
@@ -282,7 +284,383 @@ export const FORM_103: DeclarationForm = {
   ],
 }
 
+export const FORM_101: DeclarationForm = {
+  id: '101',
+  title: 'Declaración del Impuesto a la Renta para Sociedades',
+  description: 'Formulario para la declaración anual del impuesto a la renta',
+  sections: [
+    {
+      title: 'Ingresos',
+      description: 'Registre los ingresos obtenidos durante el periodo fiscal',
+      fields: [
+        {
+          code: '6001',
+          label: 'Ventas locales netas de bienes',
+          type: 'number',
+          category: 'income',
+          required: true,
+          defaultValue: 0,
+        },
+        {
+          code: '6003',
+          label: 'Exportaciones netas de bienes',
+          type: 'number',
+          category: 'income',
+          required: false,
+          defaultValue: 0,
+        },
+        {
+          code: '6005',
+          label: 'Prestación de servicios',
+          type: 'number',
+          category: 'income',
+          required: false,
+          defaultValue: 0,
+        },
+        {
+          code: '6007',
+          label: 'Rendimientos financieros',
+          type: 'number',
+          category: 'income',
+          required: false,
+          defaultValue: 0,
+        },
+        {
+          code: '6099',
+          label: 'Total ingresos',
+          type: 'number',
+          category: 'income',
+          required: true,
+          defaultValue: 0,
+        },
+      ],
+    },
+    {
+      title: 'Costos y Gastos',
+      description: 'Registre los costos y gastos deducibles',
+      fields: [
+        {
+          code: '7001',
+          label: 'Costos de ventas',
+          type: 'number',
+          category: 'expense',
+          required: true,
+          defaultValue: 0,
+        },
+        {
+          code: '7004',
+          label: 'Sueldos y salarios',
+          type: 'number',
+          category: 'expense',
+          required: false,
+          defaultValue: 0,
+        },
+        {
+          code: '7010',
+          label: 'Beneficios sociales',
+          type: 'number',
+          category: 'expense',
+          required: false,
+          defaultValue: 0,
+        },
+        {
+          code: '7013',
+          label: 'Honorarios profesionales',
+          type: 'number',
+          category: 'expense',
+          required: false,
+          defaultValue: 0,
+        },
+        {
+          code: '7017',
+          label: 'Gastos de viaje',
+          type: 'number',
+          category: 'expense',
+          required: false,
+          defaultValue: 0,
+        },
+        {
+          code: '7020',
+          label: 'Arrendamiento de inmuebles',
+          type: 'number',
+          category: 'expense',
+          required: false,
+          defaultValue: 0,
+        },
+        {
+          code: '7099',
+          label: 'Total costos y gastos',
+          type: 'number',
+          category: 'expense',
+          required: true,
+          defaultValue: 0,
+        },
+      ],
+    },
+    {
+      title: 'Conciliación Tributaria',
+      description: 'Cálculo de la base imponible',
+      fields: [
+        {
+          code: '801',
+          label: 'Utilidad del ejercicio',
+          type: 'number',
+          category: 'info',
+          required: true,
+          defaultValue: 0,
+        },
+        {
+          code: '803',
+          label: 'Participación trabajadores',
+          type: 'number',
+          category: 'info',
+          required: false,
+          defaultValue: 0,
+        },
+        {
+          code: '806',
+          label: 'Gastos no deducibles',
+          type: 'number',
+          category: 'info',
+          required: false,
+          defaultValue: 0,
+        },
+        {
+          code: '835',
+          label: 'Utilidad gravable',
+          type: 'number',
+          category: 'info',
+          required: true,
+          defaultValue: 0,
+        },
+      ],
+    },
+    {
+      title: 'Impuesto a la Renta',
+      description: 'Cálculo del impuesto a pagar',
+      fields: [
+        {
+          code: '849',
+          label: 'Impuesto a la renta causado',
+          type: 'number',
+          category: 'tax',
+          required: true,
+          defaultValue: 0,
+        },
+        {
+          code: '850',
+          label: 'Anticipo determinado para el ejercicio fiscal',
+          type: 'number',
+          category: 'tax',
+          required: false,
+          defaultValue: 0,
+        },
+        {
+          code: '855',
+          label: 'Retenciones en la fuente realizadas en el ejercicio fiscal',
+          type: 'number',
+          category: 'tax',
+          required: false,
+          defaultValue: 0,
+        },
+        {
+          code: '869',
+          label: 'Impuesto a la renta a pagar',
+          type: 'number',
+          category: 'tax',
+          required: true,
+          defaultValue: 0,
+        },
+      ],
+    },
+  ],
+}
+
+export const FORM_102: DeclarationForm = {
+  id: '102',
+  title: 'Declaración del Impuesto a la Renta para Personas Naturales',
+  description: 'Formulario para la declaración anual del impuesto a la renta',
+  sections: [
+    {
+      title: 'Identificación y Domicilio',
+      description: 'Información del contribuyente',
+      fields: [
+        {
+          code: '201',
+          label: 'Cédula de Identidad o Pasaporte',
+          type: 'text',
+          category: 'info',
+          required: true,
+          defaultValue: '',
+        },
+        {
+          code: '202',
+          label: 'Apellidos y Nombres Completos',
+          type: 'text',
+          category: 'info',
+          required: true,
+          defaultValue: '',
+        },
+      ],
+    },
+    {
+      title: 'Rentas Gravadas de Trabajo',
+      description: 'Ingresos en relación de dependencia y otros',
+      fields: [
+        {
+          code: '501',
+          label: 'Ingresos líquidos en relación de dependencia',
+          type: 'number',
+          category: 'income',
+          required: false,
+          defaultValue: 0,
+        },
+        {
+          code: '511',
+          label: 'Ingresos líquidos por servicios profesionales',
+          type: 'number',
+          category: 'income',
+          required: false,
+          defaultValue: 0,
+        },
+        {
+          code: '521',
+          label: 'Ingresos líquidos por arriendo de bienes inmuebles',
+          type: 'number',
+          category: 'income',
+          required: false,
+          defaultValue: 0,
+        },
+      ],
+    },
+    {
+      title: 'Rentas Gravadas de Capital',
+      description: 'Ingresos financieros y otros',
+      fields: [
+        {
+          code: '571',
+          label: 'Rendimientos financieros',
+          type: 'number',
+          category: 'income',
+          required: false,
+          defaultValue: 0,
+        },
+        {
+          code: '581',
+          label: 'Dividendos recibidos',
+          type: 'number',
+          category: 'income',
+          required: false,
+          defaultValue: 0,
+        },
+      ],
+    },
+    {
+      title: 'Gastos Deducibles',
+      description: 'Gastos personales deducibles',
+      fields: [
+        {
+          code: '701',
+          label: 'Salud',
+          type: 'number',
+          category: 'expense',
+          required: false,
+          defaultValue: 0,
+        },
+        {
+          code: '702',
+          label: 'Educación',
+          type: 'number',
+          category: 'expense',
+          required: false,
+          defaultValue: 0,
+        },
+        {
+          code: '703',
+          label: 'Alimentación',
+          type: 'number',
+          category: 'expense',
+          required: false,
+          defaultValue: 0,
+        },
+        {
+          code: '704',
+          label: 'Vivienda',
+          type: 'number',
+          category: 'expense',
+          required: false,
+          defaultValue: 0,
+        },
+        {
+          code: '705',
+          label: 'Vestimenta',
+          type: 'number',
+          category: 'expense',
+          required: false,
+          defaultValue: 0,
+        },
+        {
+          code: '759',
+          label: 'Total gastos personales',
+          type: 'number',
+          category: 'expense',
+          required: false,
+          defaultValue: 0,
+        },
+      ],
+    },
+    {
+      title: 'Resumen Impositivo',
+      description: 'Cálculo del impuesto a pagar',
+      fields: [
+        {
+          code: '832',
+          label: 'Base imponible gravada',
+          type: 'number',
+          category: 'info',
+          required: true,
+          defaultValue: 0,
+        },
+        {
+          code: '839',
+          label: 'Impuesto a la renta causado',
+          type: 'number',
+          category: 'tax',
+          required: true,
+          defaultValue: 0,
+        },
+        {
+          code: '845',
+          label: 'Retenciones en la fuente que le realizaron',
+          type: 'number',
+          category: 'tax',
+          required: false,
+          defaultValue: 0,
+        },
+        {
+          code: '859',
+          label: 'Impuesto a la renta a pagar',
+          type: 'number',
+          category: 'tax',
+          required: true,
+          defaultValue: 0,
+        },
+        {
+          code: '869',
+          label: 'Saldo a favor del contribuyente',
+          type: 'number',
+          category: 'tax',
+          required: false,
+          defaultValue: 0,
+        },
+      ],
+    },
+  ],
+}
+
 export const DECLARATION_FORMS = {
   '104': FORM_104,
   '103': FORM_103,
+  '101': FORM_101,
+  '102': FORM_102,
 }

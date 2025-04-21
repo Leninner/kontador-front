@@ -98,6 +98,14 @@ export const DeclarationForm = ({ formType, period, customers, onSubmit }: Props
     setFormValues(newValues)
   }
 
+  const getTaxPercentage = (code: string) => {
+    if (code === '401') return 12
+    if (code === '403') return 0
+    if (code === '409') return 12
+    if (code === '519') return 12
+    return 0
+  }
+
   const handleSubmit = async () => {
     try {
       // Prepare items from form values
@@ -106,15 +114,16 @@ export const DeclarationForm = ({ formType, period, customers, onSubmit }: Props
         return {
           code,
           description: fieldDef?.label || code,
-          amount,
-          taxPercentage: 0, // Depends on field
-          type: fieldDef?.category === 'income' ? 'income' : 'expense',
+          amount: typeof amount === 'number' ? amount : Number(amount || 0),
+          taxPercentage: getTaxPercentage(code),
+          type: fieldDef?.category === 'income' ? ('income' as const) : ('expense' as const),
         }
       })
 
       await createDeclaration.mutateAsync({
         formType,
         period: period ? format(period, 'yyyy-MM') : format(new Date(), 'yyyy-MM'),
+        customerId: selectedCustomer,
         items,
       })
 

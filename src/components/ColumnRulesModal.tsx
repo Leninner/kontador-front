@@ -277,191 +277,188 @@ export const ColumnRulesModal = ({
                 value={expandedRuleId}
                 onValueChange={(value: string) => setExpandedRuleId(value)}
               >
-                {columnRules.rules.map((rule) => {
-                  console.log('rule', rule)
-                  return (
-                    <AccordionItem value={rule.id} key={rule.id}>
-                      <Card className="mb-4">
-                        <CardHeader className="p-4 pb-0">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <Checkbox
-                                checked={rule.enabled}
-                                onCheckedChange={(checked) => handleRuleEnabledChange(rule.id, checked === true)}
-                                id={`rule-enabled-${rule.id}`}
-                              />
-                              <AccordionTrigger className="p-0 hover:no-underline">
-                                <div className="flex gap-2 items-center">
-                                  <h4 className="text-sm font-medium">{rule.name}</h4>
-                                </div>
-                              </AccordionTrigger>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleDeleteRule(rule.id)
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                {columnRules.rules.map((rule) => (
+                  <AccordionItem value={rule.id} key={rule.id}>
+                    <Card className="mb-4">
+                      <CardHeader className="p-4 pb-0">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <Checkbox
+                              checked={rule.enabled}
+                              onCheckedChange={(checked) => handleRuleEnabledChange(rule.id, checked === true)}
+                              id={`rule-enabled-${rule.id}`}
+                            />
+                            <AccordionTrigger className="p-0 hover:no-underline">
+                              <div className="flex gap-2 items-center">
+                                <h4 className="text-sm font-medium">{rule.name}</h4>
+                              </div>
+                            </AccordionTrigger>
                           </div>
-                          <CardDescription className="ml-10 mt-1">
-                            {rule.enabled ? 'Activa' : 'Inactiva'} - {getTriggerDescription(rule.trigger.type)}
-                            {rule.conditions.length > 0
-                              ? ` cuando ${getConditionDescription(rule.conditions[0].type)}`
-                              : ''}
-                            {rule.conditions.length > 1 ? ` y ${rule.conditions.length - 1} más condiciones` : ''}
-                            {` entonces ${getActionDescription(rule.action.type, rule.action.config)}`}
-                          </CardDescription>
-                        </CardHeader>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleDeleteRule(rule.id)
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <CardDescription className="ml-10 mt-1">
+                          {rule.enabled ? 'Activa' : 'Inactiva'} - {getTriggerDescription(rule.trigger.type)}
+                          {rule.conditions.length > 0
+                            ? ` cuando ${getConditionDescription(rule.conditions[0].type)}`
+                            : ''}
+                          {rule.conditions.length > 1 ? ` y ${rule.conditions.length - 1} más condiciones` : ''}
+                          {` entonces ${getActionDescription(rule.action.type, rule.action.config)}`}
+                        </CardDescription>
+                      </CardHeader>
 
-                        <AccordionContent>
-                          <CardContent className="p-4 pt-0">
-                            <div className="space-y-4 pt-4">
-                              <div className="space-y-2">
-                                <Label>Nombre de la regla</Label>
-                                <Input
-                                  value={rule.name}
-                                  onChange={(e) => handleRuleNameChange(rule.id, e.target.value)}
-                                  placeholder="Enter rule name"
-                                />
+                      <AccordionContent>
+                        <CardContent className="p-4 pt-0">
+                          <div className="space-y-4 pt-4">
+                            <div className="space-y-2">
+                              <Label>Nombre de la regla</Label>
+                              <Input
+                                value={rule.name}
+                                onChange={(e) => handleRuleNameChange(rule.id, e.target.value)}
+                                placeholder="Enter rule name"
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label>Cuando esto sucede (Trigger)</Label>
+                              <Select
+                                value={rule.trigger.type}
+                                onValueChange={(value) => handleTriggerTypeChange(rule.id, value)}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select trigger type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="card_created">Tarjeta creada</SelectItem>
+                                  <SelectItem value="card_moved">Tarjeta movida a esta columna</SelectItem>
+                                  <SelectItem value="due_date_approaching">Fecha de vencimiento cercana</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                              <div className="flex justify-between items-center">
+                                <Label>Y estas condiciones se cumplen</Label>
+                                <Button variant="ghost" size="sm" onClick={() => handleAddCondition(rule.id)}>
+                                  <Plus className="h-4 w-4" />
+                                </Button>
                               </div>
-
-                              <div className="space-y-2">
-                                <Label>Cuando esto sucede (Trigger)</Label>
-                                <Select
-                                  value={rule.trigger.type}
-                                  onValueChange={(value) => handleTriggerTypeChange(rule.id, value)}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select trigger type" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="card_created">Tarjeta creada</SelectItem>
-                                    <SelectItem value="card_moved">Tarjeta movida a esta columna</SelectItem>
-                                    <SelectItem value="due_date_approaching">Fecha de vencimiento cercana</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-
-                              <div className="space-y-2">
-                                <div className="flex justify-between items-center">
-                                  <Label>Y estas condiciones se cumplen</Label>
-                                  <Button variant="ghost" size="sm" onClick={() => handleAddCondition(rule.id)}>
-                                    <Plus className="h-4 w-4" />
-                                  </Button>
+                              {rule.conditions.length === 0 ? (
+                                <div className="p-4 border rounded-md text-center text-muted-foreground text-sm">
+                                  No hay condiciones agregadas (siempre se ejecutará)
                                 </div>
-                                {rule.conditions.length === 0 ? (
-                                  <div className="p-4 border rounded-md text-center text-muted-foreground text-sm">
-                                    No hay condiciones agregadas (siempre se ejecutará)
-                                  </div>
-                                ) : (
-                                  <div className="space-y-2">
-                                    {rule.conditions.map((condition, index) => (
-                                      <div key={index} className="flex items-center gap-2">
-                                        <Select
-                                          value={condition.type}
-                                          onValueChange={(value) => handleConditionTypeChange(rule.id, index, value)}
-                                        >
-                                          <SelectTrigger className="flex-1">
-                                            <SelectValue placeholder="Select condition type" />
-                                          </SelectTrigger>
-                                          <SelectContent>
-                                            <SelectItem value="has_customer">Tiene cliente</SelectItem>
-                                            <SelectItem value="has_due_date">Tiene fecha de vencimiento</SelectItem>
-                                            <SelectItem value="has_label">Tiene etiqueta</SelectItem>
-                                            <SelectItem value="custom_field_value">
-                                              Valor de campo personalizado
-                                            </SelectItem>
-                                          </SelectContent>
-                                        </Select>
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
-                                          onClick={() => handleRemoveCondition(rule.id, index)}
-                                        >
-                                          <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-
-                              <div className="space-y-2">
-                                <Label>Entonces haz esto (Acción)</Label>
-                                <Select
-                                  value={rule.action.type}
-                                  onValueChange={(value) => handleActionTypeChange(rule.id, value)}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select action type" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="send_email">Enviar correo electrónico</SelectItem>
-                                    <SelectItem value="move_to_column">Mover a columna</SelectItem>
-                                    <SelectItem value="assign_due_date">Asignar fecha de vencimiento</SelectItem>
-                                    <SelectItem value="add_label">Agregar etiqueta</SelectItem>
-                                    <SelectItem value="notify_user">Notificar usuario</SelectItem>
-                                  </SelectContent>
-                                </Select>
-
-                                {rule.action.type === 'send_email' && (
-                                  <div className="space-y-4 pl-4 border-l-2 border-gray-200 mt-4">
-                                    <div className="space-y-2">
-                                      <Label>Asunto</Label>
-                                      <Input
-                                        value={rule.action.config?.subject || ''}
-                                        onChange={(e) => handleActionConfigChange(rule.id, 'subject', e.target.value)}
-                                        placeholder="Asunto del correo electrónico"
-                                      />
-                                    </div>
-                                    <div className="space-y-2">
-                                      <Label>Plantilla</Label>
+                              ) : (
+                                <div className="space-y-2">
+                                  {rule.conditions.map((condition, index) => (
+                                    <div key={index} className="flex items-center gap-2">
                                       <Select
-                                        value={rule.action.config?.templateName || 'card-moved'}
-                                        onValueChange={(value) =>
-                                          handleActionConfigChange(rule.id, 'templateName', value)
-                                        }
+                                        value={condition.type}
+                                        onValueChange={(value) => handleConditionTypeChange(rule.id, index, value)}
                                       >
-                                        <SelectTrigger>
-                                          <SelectValue placeholder="Select template" />
+                                        <SelectTrigger className="flex-1">
+                                          <SelectValue placeholder="Select condition type" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                          <SelectItem value="card-moved">Tarjeta movida</SelectItem>
-                                          <SelectItem value="due-date-approaching">
-                                            Fecha de vencimiento cercana
+                                          <SelectItem value="has_customer">Tiene cliente</SelectItem>
+                                          <SelectItem value="has_due_date">Tiene fecha de vencimiento</SelectItem>
+                                          <SelectItem value="has_label">Tiene etiqueta</SelectItem>
+                                          <SelectItem value="custom_field_value">
+                                            Valor de campo personalizado
                                           </SelectItem>
                                         </SelectContent>
                                       </Select>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleRemoveCondition(rule.id, index)}
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
                                     </div>
-                                    <div className="space-y-2">
-                                      <Label>Mensaje personalizado (opcional)</Label>
-                                      <textarea
-                                        className="w-full min-h-[100px] p-2 border rounded-md"
-                                        value={rule.action.config?.customMessage || ''}
-                                        onChange={(e) =>
-                                          handleActionConfigChange(rule.id, 'customMessage', e.target.value)
-                                        }
-                                        placeholder="<p>Mensaje HTML personalizado</p>"
-                                      />
-                                      <p className="text-xs text-muted-foreground">
-                                        HTML soportado. Puedes usar variables como {'{{'} customer.name {'}}'}, {'{{'}{' '}
-                                        card.name {'}}'}, etc.
-                                      </p>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
+                                  ))}
+                                </div>
+                              )}
                             </div>
-                          </CardContent>
-                        </AccordionContent>
-                      </Card>
-                    </AccordionItem>
-                  )
-                })}
+
+                            <div className="space-y-2">
+                              <Label>Entonces haz esto (Acción)</Label>
+                              <Select
+                                value={rule.action.type}
+                                onValueChange={(value) => handleActionTypeChange(rule.id, value)}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select action type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="send_email">Enviar correo electrónico</SelectItem>
+                                  <SelectItem value="move_to_column">Mover a columna</SelectItem>
+                                  <SelectItem value="assign_due_date">Asignar fecha de vencimiento</SelectItem>
+                                  <SelectItem value="add_label">Agregar etiqueta</SelectItem>
+                                  <SelectItem value="notify_user">Notificar usuario</SelectItem>
+                                </SelectContent>
+                              </Select>
+
+                              {rule.action.type === 'send_email' && (
+                                <div className="space-y-4 pl-4 border-l-2 border-gray-200 mt-4">
+                                  <div className="space-y-2">
+                                    <Label>Asunto</Label>
+                                    <Input
+                                      value={rule.action.config?.subject || ''}
+                                      onChange={(e) => handleActionConfigChange(rule.id, 'subject', e.target.value)}
+                                      placeholder="Asunto del correo electrónico"
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label>Plantilla</Label>
+                                    <Select
+                                      value={rule.action.config?.templateName || 'card-moved'}
+                                      onValueChange={(value) =>
+                                        handleActionConfigChange(rule.id, 'templateName', value)
+                                      }
+                                    >
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select template" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="card-moved">Tarjeta movida</SelectItem>
+                                        <SelectItem value="due-date-approaching">
+                                          Fecha de vencimiento cercana
+                                        </SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label>Mensaje personalizado (opcional)</Label>
+                                    <textarea
+                                      className="w-full min-h-[100px] p-2 border rounded-md"
+                                      value={rule.action.config?.customMessage || ''}
+                                      onChange={(e) =>
+                                        handleActionConfigChange(rule.id, 'customMessage', e.target.value)
+                                      }
+                                      placeholder="<p>Mensaje HTML personalizado</p>"
+                                    />
+                                    <p className="text-xs text-muted-foreground">
+                                      HTML soportado. Puedes usar variables como {'{{'} customer.name {'}}'}, {'{{'}{' '}
+                                      card.name {'}}'}, etc.
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </AccordionContent>
+                    </Card>
+                  </AccordionItem>
+                ))}
               </Accordion>
             )}
           </div>
