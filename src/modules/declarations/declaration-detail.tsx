@@ -21,7 +21,6 @@ import {
 import { declarationsService } from './declarations.service'
 import { toast } from 'sonner'
 
-// Helper functions for status displays
 const getStatusColor = (status: string): string => {
   switch (status) {
     case 'submitted':
