@@ -20,7 +20,7 @@ import { Link } from 'react-router-dom'
 const data = {
   navMain: [
     {
-      title: 'Dashboard',
+      title: 'Panel',
       url: '/dashboard',
       icon: Home,
     },

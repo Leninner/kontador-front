@@ -4,7 +4,7 @@ import { useCustomers } from '@/modules/customers/useCustomers'
 import { CustomerForm } from '@/modules/customers/customer-form'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { CustomerDocuments } from '@/modules/customers/customer-documents'
+// import { CustomerDocuments } from '@/modules/customers/customer-documents'
 import { UpdateCustomerDto, Customer } from '@/modules/customers/customers.interface'
 import { useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
@@ -83,12 +83,12 @@ export const CustomerDetail = () => {
           </CardContent>
         </Card>
 
-        <Separator className="my-4 sm:my-6" />
+        {/* <Separator className="my-4 sm:my-6" />
 
         <div className="space-y-4">
           <h2 className="text-xl sm:text-2xl font-semibold">Documentos</h2>
           <CustomerDocuments customerId={customer.id} />
-        </div>
+        </div> */}
 
         <Separator className="my-4 sm:my-6" />
 
