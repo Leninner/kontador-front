@@ -76,21 +76,7 @@ export const DeclarationList = () => {
     }
 
     try {
-      // For development purposes, we'll just open the URL in a new tab
-      // In production, this would be an actual file download
       window.open(declaration.documentUrl, '_blank')
-
-      // For an actual download implementation:
-      // const response = await fetch(declaration.documentUrl)
-      // const blob = await response.blob()
-      // const url = window.URL.createObjectURL(blob)
-      // const a = document.createElement('a')
-      // a.href = url
-      // a.download = `Declaracion-${declaration.formType}-${declaration.period}.pdf`
-      // document.body.appendChild(a)
-      // a.click()
-      // window.URL.revokeObjectURL(url)
-      // a.remove()
 
       toast.success('Descargando documento', {
         description: `Declaración ${declaration.formType} - ${format(new Date(declaration.period + '-01'), 'MMMM yyyy')}`,
