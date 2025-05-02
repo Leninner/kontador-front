@@ -2,13 +2,12 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { format } from 'date-fns'
-import { Download, MoreHorizontal, Plus } from 'lucide-react'
+import { MoreHorizontal, Plus } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { InvoiceForm } from './invoice-form'
 import { Invoice } from './invoices.interface'
 import { useInvoices } from './useInvoices'
-import { invoicesService } from './invoices.service'
 
 interface InvoiceListProps {
   customerId: string
@@ -24,20 +23,6 @@ export const InvoiceList = ({ customerId }: InvoiceListProps) => {
       await deleteInvoice.mutateAsync(id)
     } catch (error) {
       console.error('Failed to delete invoice:', error)
-    }
-  }
-
-  const handleDownloadPdf = async (invoice: Invoice) => {
-    try {
-      const url = await invoicesService.downloadPdf(invoice.id)
-      const a = document.createElement('a')
-      a.href = url as string
-      a.download = `invoice-${invoice.number}.pdf`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-    } catch (error) {
-      console.error('Failed to download PDF:', error)
     }
   }
 
@@ -83,14 +68,6 @@ export const InvoiceList = ({ customerId }: InvoiceListProps) => {
                 <TableCell>${invoice.iva.toFixed(2)}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0"
-                      onClick={() => handleDownloadPdf(invoice)}
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">

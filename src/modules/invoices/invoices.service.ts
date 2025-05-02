@@ -22,7 +22,6 @@ export const invoicesService = {
     formData.append('number', data.number)
     formData.append('date', data.date)
     formData.append('amount', data.amount.toString())
-    formData.append('pdfFile', data.pdfFile)
 
     const response = await httpClient.post<Invoice>('/invoices', formData, {
       headers: {
@@ -37,7 +36,6 @@ export const invoicesService = {
     if (data.number) formData.append('number', data.number)
     if (data.date) formData.append('date', data.date)
     if (data.amount) formData.append('amount', data.amount.toString())
-    if (data.pdfFile) formData.append('pdfFile', data.pdfFile)
 
     const response = await httpClient.patch<Invoice>(`/invoices/${id}`, formData, {
       headers: {
@@ -49,10 +47,5 @@ export const invoicesService = {
 
   remove: async (id: string) => {
     await httpClient.delete(`/invoices/${id}`)
-  },
-
-  downloadPdf: async (id: string) => {
-    const response = await httpClient.get(`/invoices/${id}/pdf`)
-    return response.data
   },
 }

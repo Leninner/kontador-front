@@ -12,7 +12,6 @@ const formSchema = z.object({
   amount: z.number().min(0, 'Monto debe ser positivo'),
   tax: z.number().min(0, 'Impuesto debe ser positivo'),
   iva: z.number().min(0, 'IVA debe ser positivo'),
-  pdfFile: z.instanceof(File, { message: 'Archivo PDF es requerido' }),
 })
 
 interface InvoiceFormProps {
@@ -30,7 +29,6 @@ export const InvoiceForm = ({ customerId, onSubmit }: InvoiceFormProps) => {
       amount: 0,
       tax: 0,
       iva: 0,
-      pdfFile: undefined,
     },
   })
 
@@ -118,26 +116,6 @@ export const InvoiceForm = ({ customerId, onSubmit }: InvoiceFormProps) => {
               <FormLabel>IVA</FormLabel>
               <FormControl>
                 <Input type="number" step="0.01" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="pdfFile"
-          render={({ field: { onChange, ...field } }) => (
-            <FormItem>
-              <FormLabel>Archivo PDF</FormLabel>
-              <FormControl>
-                <Input
-                  type="file"
-                  accept=".pdf"
-                  onChange={(e) => onChange(e.target.files?.[0])}
-                  {...field}
-                  value={undefined}
-                />
               </FormControl>
               <FormMessage />
             </FormItem>

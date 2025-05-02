@@ -6,7 +6,6 @@ export interface Invoice {
   amount: number
   tax: number
   iva: number
-  pdfUrl: string
   createdAt: string
   updatedAt: string
 }
@@ -18,7 +17,6 @@ export interface CreateInvoiceDto {
   amount: number
   tax: number
   iva: number
-  pdfFile: File
 }
 
 export interface UpdateInvoiceDto {
@@ -27,5 +25,4 @@ export interface UpdateInvoiceDto {
   amount?: number
   tax?: number
   iva?: number
-  pdfFile?: File
 }
