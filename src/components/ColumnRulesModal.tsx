@@ -246,18 +246,24 @@ export const ColumnRulesModal = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Reglas de la columna: {columnName}</DialogTitle>
+          <DialogTitle>
+            Reglas de la columna: <strong>{columnName}</strong>
+          </DialogTitle>
         </DialogHeader>
 
         <div className="flex items-center space-x-2 py-4">
           <Checkbox id="rules-enabled" checked={columnRules.enabled} onCheckedChange={handleEnabledChange} />
-          <Label htmlFor="rules-enabled">Habilitar reglas para esta columna</Label>
+          <Label htmlFor="rules-enabled">
+            <strong>Habilitar reglas para esta columna</strong>
+          </Label>
         </div>
 
         {columnRules.enabled && (
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h3 className="text-lg font-medium">Reglas</h3>
+              <h3 className="text-lg font-medium">
+                <strong>Reglas</strong>
+              </h3>
               <Button variant="outline" size="sm" onClick={handleAddRule}>
                 <PlusCircle className="h-4 w-4 mr-2" />
                 Agregar regla
@@ -290,7 +296,9 @@ export const ColumnRulesModal = ({
                             />
                             <AccordionTrigger className="p-0 hover:no-underline">
                               <div className="flex gap-2 items-center">
-                                <h4 className="text-sm font-medium">{rule.name}</h4>
+                                <h4 className="text-sm font-medium">
+                                  <strong>{rule.name}</strong>
+                                </h4>
                               </div>
                             </AccordionTrigger>
                           </div>
@@ -306,12 +314,24 @@ export const ColumnRulesModal = ({
                           </Button>
                         </div>
                         <CardDescription className="ml-10 mt-1">
-                          {rule.enabled ? 'Activa' : 'Inactiva'} - {getTriggerDescription(rule.trigger.type)}
-                          {rule.conditions.length > 0
-                            ? ` cuando ${getConditionDescription(rule.conditions[0].type)}`
-                            : ''}
-                          {rule.conditions.length > 1 ? ` y ${rule.conditions.length - 1} más condiciones` : ''}
-                          {` entonces ${getActionDescription(rule.action.type, rule.action.config)}`}
+                          {rule.enabled ? <strong>Activa</strong> : <strong>Inactiva</strong>} -{' '}
+                          <strong>{getTriggerDescription(rule.trigger.type)}</strong>
+                          {rule.conditions.length > 0 && (
+                            <>
+                              {' '}
+                              cuando <strong>{getConditionDescription(rule.conditions[0].type)}</strong>
+                            </>
+                          )}
+                          {rule.conditions.length > 1 && (
+                            <>
+                              {' '}
+                              y <strong>{rule.conditions.length - 1} más condiciones</strong>
+                            </>
+                          )}
+                          <>
+                            {' '}
+                            entonces <strong>{getActionDescription(rule.action.type, rule.action.config)}</strong>
+                          </>
                         </CardDescription>
                       </CardHeader>
 
@@ -319,7 +339,9 @@ export const ColumnRulesModal = ({
                         <CardContent className="p-4 pt-0">
                           <div className="space-y-4 pt-4">
                             <div className="space-y-2">
-                              <Label>Nombre de la regla</Label>
+                              <Label>
+                                <strong>Nombre de la regla</strong>
+                              </Label>
                               <Input
                                 value={rule.name}
                                 onChange={(e) => handleRuleNameChange(rule.id, e.target.value)}
@@ -328,7 +350,9 @@ export const ColumnRulesModal = ({
                             </div>
 
                             <div className="space-y-2">
-                              <Label>Cuando esto sucede (Trigger)</Label>
+                              <Label>
+                                <strong>Cuando esto sucede (Trigger)</strong>
+                              </Label>
                               <Select
                                 value={rule.trigger.type}
                                 onValueChange={(value) => handleTriggerTypeChange(rule.id, value)}
@@ -346,14 +370,16 @@ export const ColumnRulesModal = ({
 
                             <div className="space-y-2">
                               <div className="flex justify-between items-center">
-                                <Label>Y estas condiciones se cumplen</Label>
+                                <Label>
+                                  <strong>Y estas condiciones se cumplen</strong>
+                                </Label>
                                 <Button variant="ghost" size="sm" onClick={() => handleAddCondition(rule.id)}>
                                   <Plus className="h-4 w-4" />
                                 </Button>
                               </div>
                               {rule.conditions.length === 0 ? (
                                 <div className="p-4 border rounded-md text-center text-muted-foreground text-sm">
-                                  No hay condiciones agregadas (siempre se ejecutará)
+                                  <strong>No hay condiciones agregadas (siempre se ejecutará)</strong>
                                 </div>
                               ) : (
                                 <div className="space-y-2">
@@ -389,7 +415,9 @@ export const ColumnRulesModal = ({
                             </div>
 
                             <div className="space-y-2">
-                              <Label>Entonces haz esto (Acción)</Label>
+                              <Label>
+                                <strong>Entonces haz esto (Acción)</strong>
+                              </Label>
                               <Select
                                 value={rule.action.type}
                                 onValueChange={(value) => handleActionTypeChange(rule.id, value)}
@@ -409,7 +437,9 @@ export const ColumnRulesModal = ({
                               {rule.action.type === 'send_email' && (
                                 <div className="space-y-4 pl-4 border-l-2 border-gray-200 mt-4">
                                   <div className="space-y-2">
-                                    <Label>Asunto</Label>
+                                    <Label>
+                                      <strong>Asunto</strong>
+                                    </Label>
                                     <Input
                                       value={rule.action.config?.subject || ''}
                                       onChange={(e) => handleActionConfigChange(rule.id, 'subject', e.target.value)}
@@ -417,7 +447,9 @@ export const ColumnRulesModal = ({
                                     />
                                   </div>
                                   <div className="space-y-2">
-                                    <Label>Plantilla</Label>
+                                    <Label>
+                                      <strong>Plantilla</strong>
+                                    </Label>
                                     <Select
                                       value={rule.action.config?.templateName || 'card-moved'}
                                       onValueChange={(value) =>
@@ -432,11 +464,15 @@ export const ColumnRulesModal = ({
                                         <SelectItem value="due-date-approaching">
                                           Fecha de vencimiento cercana
                                         </SelectItem>
+                                        <SelectItem value="notification">Notificación</SelectItem>
+                                        <SelectItem value="custom-message">Mensaje personalizado</SelectItem>
                                       </SelectContent>
                                     </Select>
                                   </div>
                                   <div className="space-y-2">
-                                    <Label>Mensaje personalizado (opcional)</Label>
+                                    <Label>
+                                      <strong>Mensaje personalizado (opcional)</strong>
+                                    </Label>
                                     <textarea
                                       className="w-full min-h-[100px] p-2 border rounded-md"
                                       value={rule.action.config?.customMessage || ''}
@@ -446,8 +482,15 @@ export const ColumnRulesModal = ({
                                       placeholder="<p>Mensaje HTML personalizado</p>"
                                     />
                                     <p className="text-xs text-muted-foreground">
-                                      HTML soportado. Puedes usar variables como {'{{'} customer.name {'}}'}, {'{{'}{' '}
-                                      card.name {'}}'}, etc.
+                                      HTML soportado. Puedes usar variables como{' '}
+                                      <strong>
+                                        {'{{'} customer.name {'}}'}
+                                      </strong>
+                                      ,{' '}
+                                      <strong>
+                                        {'{{'} card.name {'}}'}
+                                      </strong>
+                                      , etc.
                                     </p>
                                   </div>
                                 </div>
@@ -469,7 +512,7 @@ export const ColumnRulesModal = ({
             Cancelar
           </Button>
           <Button type="submit" onClick={handleSave}>
-            Guardar
+            <strong>Guardar</strong>
           </Button>
         </DialogFooter>
       </DialogContent>

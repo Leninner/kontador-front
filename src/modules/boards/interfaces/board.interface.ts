@@ -10,6 +10,7 @@ export enum HistoryActionType {
   CUSTOMER_UNLINKED = 'CUSTOMER_UNLINKED',
   DUE_DATE_CHANGED = 'DUE_DATE_CHANGED',
   COMMENT_DELETED = 'COMMENT_DELETED',
+  PRIORITY_CHANGED = 'PRIORITY_CHANGED',
 }
 
 export interface Board {
@@ -40,6 +41,7 @@ export interface BoardColumnCard {
   dueDate: string
   createdAt: string
   updatedAt: string
+  priority?: string
   description?: string
   history?: BoardColumnCardHistory[]
   comments?: BoardColumnCardComment[]
@@ -51,12 +53,13 @@ export class UpdateBoardColumnCardDto {
   dueDate?: string
   description?: string
   columnId?: string
-
+  priority?: string
   constructor(card: BoardColumnCard) {
     this.name = card.name
     this.customerId = card.customer?.id
     this.dueDate = card.dueDate
     this.description = card.description
+    this.priority = card.priority
   }
 }
 

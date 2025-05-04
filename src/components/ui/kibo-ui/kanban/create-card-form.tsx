@@ -2,15 +2,17 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Calendar } from '@/components/ui/calendar'
-import { CalendarIcon, Plus } from 'lucide-react'
+import { CalendarIcon, Plus, Search } from 'lucide-react'
 import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { useCustomers } from '@/modules/customers/useCustomers'
 
 interface CreateCardFormProps {
-  onSave: (data: { name: string; description: string; dueDate: Date }) => void
+  onSave: (data: { name: string; description: string; dueDate: Date; customerId?: string }) => void
   isOpen?: boolean
   onOpenChange?: (isOpen: boolean) => void
 }
@@ -19,12 +21,20 @@ export const CreateCardForm = ({ onSave, isOpen = false, onOpenChange }: CreateC
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [dueDate, setDueDate] = useState<Date>()
+  const [customerId, setCustomerId] = useState<string>('')
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const { customersData } = useCustomers({ search: searchQuery })
+
+  const filteredCustomers = customersData.data
 
   useEffect(() => {
     if (!isOpen) {
       setName('')
       setDescription('')
       setDueDate(undefined)
+      setCustomerId('')
+      setSearchQuery('')
     }
   }, [isOpen])
 
@@ -35,6 +45,7 @@ export const CreateCardForm = ({ onSave, isOpen = false, onOpenChange }: CreateC
       name: name.trim(),
       description: description.trim(),
       dueDate,
+      customerId: customerId || undefined,
     })
 
     onOpenChange?.(false)
@@ -44,6 +55,8 @@ export const CreateCardForm = ({ onSave, isOpen = false, onOpenChange }: CreateC
     setName('')
     setDescription('')
     setDueDate(undefined)
+    setCustomerId('')
+    setSearchQuery('')
     onOpenChange?.(false)
   }
 
@@ -73,6 +86,30 @@ export const CreateCardForm = ({ onSave, isOpen = false, onOpenChange }: CreateC
             onChange={(e) => setDescription(e.target.value)}
             className="w-full min-h-[80px]"
           />
+
+          <Select value={customerId} onValueChange={setCustomerId}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Seleccionar cliente" />
+            </SelectTrigger>
+            <SelectContent>
+              <div className="p-2">
+                <div className="relative">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar cliente..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-8"
+                  />
+                </div>
+              </div>
+              {filteredCustomers.map((customer) => (
+                <SelectItem key={customer.id} value={customer.id}>
+                  {customer.name} {customer.lastName} - {customer.documentId}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           <Popover>
             <PopoverTrigger asChild>

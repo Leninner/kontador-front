@@ -51,7 +51,7 @@ export const InvoiceBarChart: React.FC<InvoiceBarChartProps> = ({ data, loading 
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis />
-          <Tooltip formatter={(value) => [`$${value.toFixed(2)}`, 'Valor']} />
+          <Tooltip formatter={(value) => [`$${value}`, 'Valor']} />
           <Legend />
           <Bar dataKey="value" fill="#82ca9d" name="Valor ($)" />
         </BarChart>

@@ -12,6 +12,7 @@ import { useInvoices } from '@/modules/invoices/useInvoices'
 import { Invoice } from '@/modules/invoices/invoices.interface'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDeclarations } from './useDeclarations'
+import { toast } from 'sonner'
 
 interface Props {
   formType: string
@@ -25,6 +26,7 @@ export const DeclarationForm = ({ formType, period, customers, onSubmit }: Props
   const [formValues, setFormValues] = useState<Record<string, number>>({})
   const [formDefinition, setFormDefinition] = useState<IDeclarationForm | null>(null)
   const [activeSection, setActiveSection] = useState<string>('')
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const { invoicesData } = useInvoices(selectedCustomer)
   const { createDeclaration } = useDeclarations()
 
@@ -106,7 +108,40 @@ export const DeclarationForm = ({ formType, period, customers, onSubmit }: Props
     return 0
   }
 
-  const handleSubmit = async () => {
+  const validateForm = (): boolean => {
+    if (!selectedCustomer) {
+      toast.error('Error de validación', {
+        description: 'Debe seleccionar un cliente para presentar la declaración.',
+      })
+      return false
+    }
+
+    if (!period) {
+      toast.error('Error de validación', {
+        description: 'Debe seleccionar un periodo fiscal para la declaración.',
+      })
+      return false
+    }
+
+    // Check for required fields with zero or invalid values
+    if (formDefinition) {
+      for (const section of formDefinition.sections) {
+        for (const field of section.fields) {
+          if (field.required && (!formValues[field.code] || formValues[field.code] === 0)) {
+            toast.error('Error de validación', {
+              description: `El campo ${field.code} - ${field.label} es obligatorio.`,
+            })
+            setActiveSection(section.title)
+            return false
+          }
+        }
+      }
+    }
+
+    return true
+  }
+
+  const handleSaveDraft = async () => {
     try {
       // Prepare items from form values
       const items = Object.entries(formValues).map(([code, amount]) => {
@@ -125,11 +160,58 @@ export const DeclarationForm = ({ formType, period, customers, onSubmit }: Props
         period: period ? format(period, 'yyyy-MM') : format(new Date(), 'yyyy-MM'),
         customerId: selectedCustomer,
         items,
+        status: 'draft',
+      })
+
+      toast.success('Borrador guardado', {
+        description: 'La declaración ha sido guardada como borrador.',
+      })
+    } catch (error) {
+      console.error('Error saving draft declaration:', error)
+    }
+  }
+
+  const handleSubmit = async () => {
+    if (!validateForm()) {
+      return
+    }
+
+    try {
+      setIsSubmitting(true)
+
+      // Prepare items from form values
+      const items = Object.entries(formValues).map(([code, amount]) => {
+        const fieldDef = findFieldDefinition(code)
+        return {
+          code,
+          description: fieldDef?.label || code,
+          amount: typeof amount === 'number' ? amount : Number(amount || 0),
+          taxPercentage: getTaxPercentage(code),
+          type: fieldDef?.category === 'income' ? ('income' as const) : ('expense' as const),
+        }
+      })
+
+      await createDeclaration.mutateAsync({
+        formType,
+        period: period ? format(period, 'yyyy-MM') : format(new Date(), 'yyyy-MM'),
+        customerId: selectedCustomer,
+        items,
+        status: 'submitted',
+        submittedDate: new Date().toISOString(),
+      })
+
+      toast.success('Declaración presentada', {
+        description: 'La declaración ha sido presentada exitosamente.',
       })
 
       onSubmit()
     } catch (error) {
       console.error('Error submitting declaration:', error)
+      toast.error('Error al presentar declaración', {
+        description: 'Ocurrió un error al intentar presentar la declaración.',
+      })
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -206,6 +288,7 @@ export const DeclarationForm = ({ formType, period, customers, onSubmit }: Props
                       <div className="col-span-2">
                         <Label htmlFor={field.code} className="text-sm">
                           {field.code} - {field.label}
+                          {field.required && <span className="text-red-500 ml-1">*</span>}
                         </Label>
                       </div>
                       <Input
@@ -225,8 +308,12 @@ export const DeclarationForm = ({ formType, period, customers, onSubmit }: Props
       </Tabs>
 
       <div className="flex justify-end space-x-4">
-        <Button variant="outline">Guardar Borrador</Button>
-        <Button onClick={handleSubmit}>Presentar Declaración</Button>
+        <Button variant="outline" onClick={handleSaveDraft} disabled={isSubmitting}>
+          Guardar Borrador
+        </Button>
+        <Button onClick={handleSubmit} disabled={isSubmitting}>
+          {isSubmitting ? 'Procesando...' : 'Presentar Declaración'}
+        </Button>
       </div>
     </div>
   )

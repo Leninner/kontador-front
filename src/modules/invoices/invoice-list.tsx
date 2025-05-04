@@ -63,9 +63,9 @@ export const InvoiceList = ({ customerId }: InvoiceListProps) => {
               <TableRow key={invoice.id}>
                 <TableCell>{invoice.number}</TableCell>
                 <TableCell>{format(new Date(invoice.date), 'MMM dd, yyyy')}</TableCell>
-                <TableCell>${invoice.amount.toFixed(2)}</TableCell>
-                <TableCell>${invoice.tax.toFixed(2)}</TableCell>
-                <TableCell>${invoice.iva.toFixed(2)}</TableCell>
+                <TableCell>${invoice.amount}</TableCell>
+                <TableCell>${invoice.tax}</TableCell>
+                <TableCell>${invoice.iva}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <DropdownMenu>

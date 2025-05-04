@@ -14,6 +14,18 @@ import {
   reportsService,
 } from '../modules/reports'
 
+// Utility function to format currency values with 2 decimal places
+const formatCurrency = (value: number | null | undefined): string => {
+  if (value === null || value === undefined) return '0.00'
+  return value.toFixed(2)
+}
+
+// Utility function to safely get numeric values
+const safeNumber = (value: number | null | undefined, defaultValue = 0): number => {
+  if (value === null || value === undefined || isNaN(value)) return defaultValue
+  return value
+}
+
 export const Dashboard = () => {
   const { user } = useAuthStore()
   const [loading, setLoading] = useState(true)
@@ -34,9 +46,9 @@ export const Dashboard = () => {
     setLoading(true)
     try {
       const [growthData, invoiceData, complianceData, responseData] = await Promise.all([
-        reportsService.getCustomerGrowthRate({ periodType }),
-        reportsService.getInvoiceStatistics({ period: selectedPeriod }),
-        reportsService.getDeclarationComplianceRate({ period: selectedPeriod }),
+        reportsService.getCustomerGrowthRate({ periodType, period: selectedPeriod }),
+        reportsService.getInvoiceStatistics({ periodType, period: selectedPeriod }),
+        reportsService.getDeclarationComplianceRate({ periodType, period: selectedPeriod }),
         reportsService.getAverageResponseTime(),
       ])
 
@@ -80,17 +92,17 @@ export const Dashboard = () => {
             </div>
             <div className="hidden md:flex items-center space-x-3 text-white">
               <div className="text-center">
-                <div className="text-3xl font-bold">{growthRate?.growthRate ?? 0}%</div>
+                <div className="text-3xl font-bold">{safeNumber(growthRate?.growthRate).toFixed(2)}%</div>
                 <div className="text-sm text-blue-200">Crecimiento</div>
               </div>
               <div className="h-10 border-r border-blue-300 opacity-50"></div>
               <div className="text-center">
-                <div className="text-3xl font-bold">{invoiceStats?.totalInvoices ?? 0}</div>
+                <div className="text-3xl font-bold">{safeNumber(invoiceStats?.totalInvoices)}</div>
                 <div className="text-sm text-blue-200">Facturas</div>
               </div>
               <div className="h-10 border-r border-blue-300 opacity-50"></div>
               <div className="text-center">
-                <div className="text-3xl font-bold">{complianceRate?.complianceRate ?? 0}%</div>
+                <div className="text-3xl font-bold">{safeNumber(complianceRate?.complianceRate).toFixed(2)}%</div>
                 <div className="text-sm text-blue-200">Cumplimiento</div>
               </div>
             </div>
@@ -113,30 +125,34 @@ export const Dashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <ReportCard
             title="Tasa de Crecimiento"
-            value={`${growthRate?.growthRate ?? 0}%`}
-            trend={growthRate?.growthRate ?? 0}
-            description={`Período: ${growthRate?.currentPeriod.start} a ${growthRate?.currentPeriod.end}`}
+            value={`${safeNumber(growthRate?.growthRate).toFixed(2)}%`}
+            trend={safeNumber(growthRate?.growthRate)}
+            description={
+              growthRate?.currentPeriod
+                ? `Período: ${growthRate.currentPeriod.start} a ${growthRate.currentPeriod.end}`
+                : 'Sin datos'
+            }
             loading={loading}
           />
 
           <ReportCard
             title="Facturas Emitidas"
-            value={invoiceStats?.totalInvoices ?? 0}
-            description={`Total: $${invoiceStats?.totalAmount ?? 0}`}
+            value={safeNumber(invoiceStats?.totalInvoices)}
+            description={`Total: $${formatCurrency(invoiceStats?.totalAmount)}`}
             loading={loading}
           />
 
           <ReportCard
             title="Cumplimiento de Declaraciones"
-            value={`${complianceRate?.complianceRate ?? 0}%`}
-            description={`${complianceRate?.submittedDeclarations ?? 0} de ${complianceRate?.totalCustomers ?? 0} clientes`}
+            value={`${safeNumber(complianceRate?.complianceRate).toFixed(2)}%`}
+            description={`${safeNumber(complianceRate?.submittedDeclarations)} de ${safeNumber(complianceRate?.totalCustomers)} clientes`}
             loading={loading}
           />
 
           <ReportCard
             title="Tiempo de Respuesta"
-            value={`${responseTime?.averageResponseTimeInHours ?? 0} h`}
-            description={`En ${responseTime?.analyzedCards ?? 0} interacciones`}
+            value={`${safeNumber(responseTime?.averageResponseTimeInHours).toFixed(2)} h`}
+            description={`En ${safeNumber(responseTime?.analyzedCards)} interacciones`}
             loading={loading}
           />
         </div>
@@ -154,19 +170,19 @@ export const Dashboard = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-gray-600 text-sm">Total Facturas</p>
-                <p className="text-xl font-bold">{invoiceStats?.totalInvoices}</p>
+                <p className="text-xl font-bold">{safeNumber(invoiceStats?.totalInvoices)}</p>
               </div>
               <div>
                 <p className="text-gray-600 text-sm">Monto Promedio</p>
-                <p className="text-xl font-bold">${invoiceStats?.averageAmount}</p>
+                <p className="text-xl font-bold">${formatCurrency(invoiceStats?.averageAmount)}</p>
               </div>
               <div>
                 <p className="text-gray-600 text-sm">Total IVA</p>
-                <p className="text-xl font-bold">${invoiceStats?.totalIva}</p>
+                <p className="text-xl font-bold">${formatCurrency(invoiceStats?.totalIva)}</p>
               </div>
               <div>
                 <p className="text-gray-600 text-sm">Total Impuestos</p>
-                <p className="text-xl font-bold">${invoiceStats?.totalTax}</p>
+                <p className="text-xl font-bold">${formatCurrency(invoiceStats?.totalTax)}</p>
               </div>
             </div>
           </DetailReport>

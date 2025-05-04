@@ -15,9 +15,6 @@ export type KanbanHeaderProps = {
   color?: string
   className?: string
   cardCount?: number
-  onDeleteColumn?: () => void
-  onMoveLeft?: () => void
-  onMoveRight?: () => void
   onEditRules?: () => void
   onUpdateName?: (newName: string) => void
   onUpdateColor?: (newColor: string) => void
@@ -29,9 +26,6 @@ export const KanbanHeader = ({
   color,
   className,
   cardCount = 0,
-  onDeleteColumn,
-  onMoveLeft,
-  onMoveRight,
   onEditRules,
   onUpdateName,
   onUpdateColor,
@@ -121,11 +115,6 @@ export const KanbanHeader = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => setIsDialogOpen(true)}>Editar columna</DropdownMenuItem>
-            <DropdownMenuItem onClick={onMoveLeft}>Mover a la izquierda</DropdownMenuItem>
-            <DropdownMenuItem onClick={onMoveRight}>Mover a la derecha</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive" onClick={onDeleteColumn}>
-              Eliminar columna
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

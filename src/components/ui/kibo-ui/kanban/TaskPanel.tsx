@@ -183,10 +183,21 @@ export const TaskPanel = ({ cardId, isOpen, onClose }: TaskPanelProps) => {
         text: 'Eliminaste un comentario',
         className: 'text-red-600',
       },
+      [HistoryActionType.PRIORITY_CHANGED]: {
+        text: 'Cambiaste la prioridad',
+        className: 'text-orange-600',
+      },
     }
 
     const message = actionMessages[action as keyof typeof actionMessages] || actionMessages[HistoryActionType.UPDATED]
     return <span className={`text-sm font-medium block mb-1 ${message.className}`}>{message.text}</span>
+  }
+
+  const handlePriorityChange = (priority: string) => {
+    setEditedCard((prev) => ({
+      ...prev!,
+      priority,
+    }))
   }
 
   return (
@@ -300,6 +311,27 @@ export const TaskPanel = ({ cardId, isOpen, onClose }: TaskPanelProps) => {
                       />
                     </PopoverContent>
                   </Popover>
+                </div>
+
+                {/* Priority */}
+                <div className="grid grid-cols-3 gap-4 items-center">
+                  <Label className="font-normal">Prioridad</Label>
+                  <Select value={editedCard?.priority} onValueChange={handlePriorityChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona una prioridad" />
+                    </SelectTrigger>
+                    <SelectContent className="flex flex-col gap-2">
+                      <SelectItem value="LOW" className="text-green-500">
+                        Baja
+                      </SelectItem>
+                      <SelectItem value="MEDIUM" className="text-yellow-500">
+                        Media
+                      </SelectItem>
+                      <SelectItem value="HIGH" className="text-red-500">
+                        Alta
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>

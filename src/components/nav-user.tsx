@@ -1,4 +1,5 @@
-import { IconCreditCard, IconDotsVertical, IconLogout, IconNotification, IconUserCircle } from '@tabler/icons-react'
+import { IconCreditCard, IconDotsVertical, IconLogout, IconUserCircle } from '@tabler/icons-react'
+import { Link } from 'react-router-dom'
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
@@ -55,30 +56,30 @@ export function NavUser({
                   <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="text-muted-foreground truncate text-xs">{user.email}</span>
+                  <span className="truncate font-medium">{user?.name}</span>
+                  <span className="text-muted-foreground truncate text-xs">{user?.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <IconUserCircle />
-                Cuenta
+              <DropdownMenuItem asChild>
+                <Link to="/profile">
+                  <IconUserCircle className="mr-2 h-4 w-4" />
+                  <span>Cuenta</span>
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <IconCreditCard />
-                Facturación
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <IconNotification />
-                Notificaciones
+              <DropdownMenuItem asChild>
+                <Link to="/membership">
+                  <IconCreditCard className="mr-2 h-4 w-4" />
+                  <span>Facturación</span>
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={logout}>
-              <IconLogout />
-              Cerrar sesión
+              <IconLogout className="mr-2 h-4 w-4" />
+              <span>Cerrar sesión</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

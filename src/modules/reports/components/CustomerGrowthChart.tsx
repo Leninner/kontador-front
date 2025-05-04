@@ -49,10 +49,7 @@ export const CustomerGrowthChart: React.FC<CustomerGrowthChartProps> = ({ data, 
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis />
-          <Tooltip
-            formatter={(value, name, props) => [`${value} clientes`, 'Cantidad']}
-            labelFormatter={(label) => `${label}`}
-          />
+          <Tooltip formatter={(value) => [`${value} clientes`, 'Cantidad']} labelFormatter={(label) => `${label}`} />
           <Legend />
           <Line type="monotone" dataKey="value" stroke="#8884d8" activeDot={{ r: 8 }} name="Clientes" />
         </LineChart>

@@ -12,6 +12,8 @@ import { BoardPage } from './pages/Board'
 import { QueryProvider } from './providers/query-provider'
 import { AppLayout } from './components/ui/layout.tsx'
 import { DeclarationsPage } from './pages/Declarations'
+import { MembershipPage } from './pages/Membership'
+import { ProfilePage } from './pages/Profile'
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <AppLayout>{children}</AppLayout>
@@ -75,6 +77,22 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <DeclarationsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/membership"
+            element={
+              <ProtectedRoute>
+                <MembershipPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
               </ProtectedRoute>
             }
           />

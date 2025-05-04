@@ -4,6 +4,13 @@ export interface IUser {
   name: string
   createdAt: Date
   updatedAt: Date
+  phone: string
+  phoneVerified?: boolean
+  licenseNumber?: string
+  taxIdentificationNumber?: string
+  specialization?: string
+  languages?: string
+  yearsOfExperience?: number
 }
 
 export interface IAuthResponse {
@@ -18,11 +25,13 @@ export interface IAuthResponse {
   }
 }
 
-export interface ILoginDto {
+export interface IRegisterDto {
   email: string
   password: string
+  name: string
 }
 
-export interface IRegisterDto extends ILoginDto {
-  name: string
+export interface IVerifyPhoneDto {
+  countryCode: string
+  phoneNumber: string
 }

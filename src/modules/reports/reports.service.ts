@@ -16,19 +16,19 @@ export const reportsService = {
     return response.data.data
   },
 
-  async getCustomerGrowthRate(params?: Pick<ReportQueryParams, 'periodType'>) {
+  async getCustomerGrowthRate(params?: Pick<ReportQueryParams, 'periodType' | 'period'>) {
     const response = await httpClient.get<{ data: CustomerGrowthRateResponse }>(`${BASE_URL}/growth-rate`, { params })
     return response.data.data
   },
 
-  async getInvoiceStatistics(params?: Pick<ReportQueryParams, 'period'>) {
+  async getInvoiceStatistics(params?: Pick<ReportQueryParams, 'period' | 'periodType'>) {
     const response = await httpClient.get<{ data: InvoiceStatisticsResponse }>(`${BASE_URL}/invoice-statistics`, {
       params,
     })
     return response.data.data
   },
 
-  async getDeclarationComplianceRate(params?: Pick<ReportQueryParams, 'period'>) {
+  async getDeclarationComplianceRate(params?: Pick<ReportQueryParams, 'period' | 'periodType'>) {
     const response = await httpClient.get<{ data: DeclarationComplianceResponse }>(`${BASE_URL}/compliance-rate`, {
       params,
     })

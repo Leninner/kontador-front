@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 
 interface RegisterFormProps {
-  onSubmit: (name: string, email: string, password: string) => Promise<void>
+  onSubmit: (credentials: { name: string; email: string; password: string }) => Promise<void>
 }
 
 export const RegisterForm = ({ onSubmit }: RegisterFormProps) => {
@@ -18,7 +18,7 @@ export const RegisterForm = ({ onSubmit }: RegisterFormProps) => {
     e.preventDefault()
     setIsLoading(true)
     try {
-      await onSubmit(name, email, password)
+      await onSubmit({ name, email, password })
     } finally {
       setIsLoading(false)
     }

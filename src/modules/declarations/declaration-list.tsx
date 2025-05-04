@@ -4,20 +4,32 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { TableHeader, TableRow, TableHead, TableBody, TableCell, Table } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { format } from 'date-fns'
-import { DownloadIcon, EyeIcon } from 'lucide-react'
+import { DownloadIcon, EyeIcon, SendIcon } from 'lucide-react'
 import { Declaration } from './declarations.interface'
 import { useDeclarations } from './useDeclarations'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DeclarationDetail } from './declaration-detail'
 import { toast } from 'sonner'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 
 export const DeclarationList = () => {
   const [page, setPage] = useState(1)
   const [limit] = useState(10)
   const [selectedDeclaration, setSelectedDeclaration] = useState<Declaration | null>(null)
   const [detailDialogOpen, setDetailDialogOpen] = useState(false)
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+  const [declarationToSubmit, setDeclarationToSubmit] = useState<Declaration | null>(null)
 
-  const { declarationsData, isLoading } = useDeclarations({
+  const { declarationsData, isLoading, updateDeclaration } = useDeclarations({
     page,
     limit,
   })
@@ -89,6 +101,44 @@ export const DeclarationList = () => {
     }
   }
 
+  const handleSubmitDeclaration = (declaration: Declaration) => {
+    if (declaration.status !== 'draft') {
+      toast.error('La declaración no se puede presentar', {
+        description: 'Solo las declaraciones en estado borrador pueden ser presentadas.',
+      })
+      return
+    }
+
+    setDeclarationToSubmit(declaration)
+    setConfirmDialogOpen(true)
+  }
+
+  const confirmSubmit = async () => {
+    if (!declarationToSubmit) return
+
+    try {
+      await updateDeclaration.mutateAsync({
+        id: declarationToSubmit.id,
+        data: {
+          status: 'submitted',
+          submittedDate: new Date().toISOString(),
+        },
+      })
+
+      toast.success('Declaración presentada', {
+        description: 'La declaración ha sido presentada exitosamente.',
+      })
+    } catch (error) {
+      console.error('Error submitting declaration:', error)
+      toast.error('Error al presentar la declaración', {
+        description: 'No se pudo presentar la declaración. Inténtelo de nuevo más tarde.',
+      })
+    } finally {
+      setConfirmDialogOpen(false)
+      setDeclarationToSubmit(null)
+    }
+  }
+
   return (
     <>
       <Card>
@@ -138,6 +188,16 @@ export const DeclarationList = () => {
                             >
                               <EyeIcon className="h-4 w-4" />
                             </Button>
+                            {declaration.status === 'draft' && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleSubmitDeclaration(declaration)}
+                                title="Presentar declaración"
+                              >
+                                <SendIcon className="h-4 w-4" />
+                              </Button>
+                            )}
                             {declaration.documentUrl && (
                               <Button
                                 variant="ghost"
@@ -194,6 +254,18 @@ export const DeclarationList = () => {
           {selectedDeclaration && <DeclarationDetail declaration={selectedDeclaration} />}
 
           <div className="flex justify-end space-x-2 mt-4">
+            {selectedDeclaration?.status === 'draft' && (
+              <Button
+                onClick={() => {
+                  setDetailDialogOpen(false)
+                  handleSubmitDeclaration(selectedDeclaration)
+                }}
+                className="flex items-center gap-2"
+              >
+                <SendIcon className="h-4 w-4" />
+                Presentar Declaración
+              </Button>
+            )}
             {selectedDeclaration?.documentUrl && (
               <Button
                 variant="outline"
@@ -208,6 +280,22 @@ export const DeclarationList = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar presentación</AlertDialogTitle>
+            <AlertDialogDescription>
+              ¿Está seguro de presentar esta declaración? Una vez presentada, no podrá volver a cambiarla a estado
+              borrador.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmSubmit}>Presentar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   )
 }

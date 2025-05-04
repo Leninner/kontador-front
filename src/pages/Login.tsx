@@ -1,72 +1,19 @@
 import { GalleryVerticalEnd } from 'lucide-react'
 import { LoginForm } from '../components/login-form'
-import { useNavigate, useLocation, Link } from 'react-router-dom'
-import { authService } from '../modules/auth/auth.service'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/useAuthStore'
-import { toast } from 'sonner'
-import { AxiosError } from 'axios'
-
-interface LocationState {
-  from?: {
-    pathname: string
-  }
-}
-
-interface AuthData {
-  user: {
-    id: string
-    name: string
-    email: string
-  }
-  token: string
-}
-
-interface SuccessResponse {
-  success: true
-  data: AuthData
-}
-
-interface ErrorResponse {
-  statusCode: number
-  error: string
-  message: string | string[]
-}
-
-type ApiResponse = SuccessResponse | ErrorResponse
+import { useEffect } from 'react'
 
 export const Login = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
   const login = useAuthStore((state) => state.login)
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const navigate = useNavigate()
 
-  const handleLogin = async (email: string, password: string) => {
-    try {
-      const response = (await authService.login({ email, password })) as ApiResponse
-
-      if ('statusCode' in response) {
-        toast.error('Error al iniciar sesión')
-        return
-      }
-
-      await login({ email, password })
-      const from = (location.state as LocationState)?.from?.pathname || '/dashboard'
-      toast.success('Inicio de sesión exitoso')
-      navigate(from, { replace: true })
-    } catch (error) {
-      const err = error as AxiosError<ErrorResponse>
-      if (err.response?.data.message) {
-        toast.error('Error al iniciar sesión', {
-          description: Array.isArray(err.response?.data.message)
-            ? err.response?.data.message[0]
-            : err.response?.data.message,
-        })
-      } else {
-        toast.error('Ocurrió un error inesperado', {
-          description: 'Por favor, intenta nuevamente',
-        })
-      }
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/')
     }
-  }
+  }, [isAuthenticated, navigate])
 
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
@@ -81,7 +28,7 @@ export const Login = () => {
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <LoginForm onSubmit={handleLogin} />
+            <LoginForm onSubmit={login} />
           </div>
         </div>
       </div>

@@ -38,6 +38,13 @@ interface ColumnChange {
   newColumnName: string
 }
 
+interface PriorityChange {
+  priority: {
+    old: string
+    new: string
+  }
+}
+
 export type HistoryChanges =
   | NameChange
   | DateChange
@@ -46,6 +53,7 @@ export type HistoryChanges =
   | CommentChange
   | DescriptionChange
   | ColumnChange
+  | PriorityChange
 
 export class ChangesFormatter {
   private static instance: ChangesFormatter
@@ -94,6 +102,10 @@ export class ChangesFormatter {
       return `Movida de "${changes.oldColumnName}" a "${changes.newColumnName}"`
     }
 
+    if (this.isPriorityChange(changes)) {
+      return `Prioridad cambiada de "${changes.priority.old}" a "${changes.priority.new}"`
+    }
+
     return ''
   }
 
@@ -103,6 +115,10 @@ export class ChangesFormatter {
       month: 'long',
       day: 'numeric',
     })
+  }
+
+  private isPriorityChange(changes: HistoryChanges): changes is PriorityChange {
+    return 'priority' in changes
   }
 
   private isCommentChange(changes: HistoryChanges): changes is CommentChange {

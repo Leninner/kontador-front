@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { IUser, ILoginDto, IRegisterDto } from '@/modules/auth/auth.interface'
+import { IUser, IRegisterDto, IAuthResponse, IVerifyPhoneDto } from '@/modules/auth/auth.interface'
 import { authService } from '@/modules/auth/auth.service'
+import { toast } from 'sonner'
 
 interface AuthState {
   user: IUser | null
@@ -9,11 +11,14 @@ interface AuthState {
   isLoading: boolean
   error: string | null
   isAuthenticated: boolean
-  login: (credentials: ILoginDto) => Promise<void>
+  login: (email: string, password: string) => Promise<IAuthResponse | undefined>
   register: (credentials: IRegisterDto) => Promise<void>
   logout: () => Promise<void>
   setError: (error: string | null) => void
   setLoading: (isLoading: boolean) => void
+  getUser: () => Promise<void>
+  updateUser: (user: IUser) => Promise<void>
+  verifyPhone: (data: IVerifyPhoneDto) => Promise<void>
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -27,20 +32,36 @@ export const useAuthStore = create<AuthState>()(
       setError: (error) => set({ error }),
       setLoading: (isLoading) => set({ isLoading }),
 
-      login: async (credentials) => {
+      login: async (email, password) => {
         try {
           set({ isLoading: true, error: null })
-          const response = await authService.login(credentials)
+
+          if (!email || !password) {
+            toast.error('Email y contraseña son requeridos')
+            return
+          }
+
+          const response = await authService.login({ email, password })
+
           if (response.success && response.data) {
             set({
               user: response.data.user,
               token: response.data.token,
               isAuthenticated: true,
             })
+            toast.success('Inicio de sesión exitoso')
+            return response
           }
-        } catch (err) {
-          set({ error: 'Failed to login' })
-          throw err
+        } catch (err: any) {
+          const errorMessage = err.response.data.error.message || err.response.data.message
+
+          if (errorMessage instanceof Array) {
+            errorMessage.forEach((message) => {
+              toast.error(message)
+            })
+          } else {
+            toast.error(errorMessage)
+          }
         } finally {
           set({ isLoading: false })
         }
@@ -56,10 +77,20 @@ export const useAuthStore = create<AuthState>()(
               token: response.data.token,
               isAuthenticated: true,
             })
+
+            await authService.login({ email: credentials.email, password: credentials.password })
+            toast.success('Registro exitoso')
           }
-        } catch (err) {
-          set({ error: 'Failed to register' })
-          throw err
+        } catch (err: any) {
+          const errorMessage = err.response.data.error.message || err.response.data.message
+
+          if (errorMessage instanceof Array) {
+            errorMessage.forEach((message) => {
+              toast.error(message)
+            })
+          } else {
+            toast.error(errorMessage)
+          }
         } finally {
           set({ isLoading: false })
         }
@@ -74,8 +105,54 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: false,
           })
         } catch (err) {
-          set({ error: 'Failed to logout' })
-          throw err
+          console.log(err)
+          toast.error('Ocurrió un error al cerrar sesión')
+        } finally {
+          set({ isLoading: false })
+        }
+      },
+
+      updateUser: async (user: IUser) => {
+        try {
+          set({ isLoading: true, error: null })
+          const response = await authService.updateUser(user)
+          if (response.success && response.data) {
+            const responseFromGetUser = await authService.getUser()
+            if (responseFromGetUser.success && responseFromGetUser.data && responseFromGetUser.data.user) {
+              set({ user: responseFromGetUser.data.user })
+              toast.success('Usuario actualizado exitosamente')
+            }
+          }
+        } catch (err) {
+          console.log(err)
+          toast.error('Ocurrió un error al actualizar el usuario')
+        } finally {
+          set({ isLoading: false })
+        }
+      },
+
+      getUser: async () => {
+        const response = await authService.getUser()
+        if (response.success && response.data) {
+          console.log('response.data.user', response.data.user)
+          set({ user: response.data.user })
+        }
+      },
+
+      verifyPhone: async (data) => {
+        try {
+          set({ isLoading: true, error: null })
+          const response = await authService.verifyPhone(data)
+          if (response.success && response.data) {
+            const responseFromGetUser = await authService.getUser()
+            if (responseFromGetUser.success && responseFromGetUser.data) {
+              set({ user: responseFromGetUser.data.user })
+            }
+            toast.success('Número de teléfono verificado exitosamente')
+          }
+        } catch (err: any) {
+          const errorMessage = err.response?.data?.error?.message || 'Error al verificar el número de teléfono'
+          toast.error(errorMessage)
         } finally {
           set({ isLoading: false })
         }

@@ -28,6 +28,8 @@ export interface CreateDeclarationDto {
   formType: string
   period: string
   customerId: string
+  status?: 'draft' | 'submitted' | 'approved' | 'rejected'
+  submittedDate?: string
   items: {
     description: string
     code: string

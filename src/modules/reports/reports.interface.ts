@@ -28,6 +28,11 @@ export interface CustomerGrowthRateResponse {
 
 export interface InvoiceStatisticsResponse {
   period: string
+  periodType: 'month' | 'quarter' | 'year'
+  periodRange: {
+    start: string
+    end: string
+  }
   totalInvoices: number
   totalAmount: number
   averageAmount: number
@@ -37,6 +42,7 @@ export interface InvoiceStatisticsResponse {
 
 export interface DeclarationComplianceResponse {
   period: string
+  periodType: 'month' | 'quarter' | 'year'
   totalCustomers: number
   submittedDeclarations: number
   complianceRate: number
