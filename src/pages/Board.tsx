@@ -17,7 +17,7 @@ import { ColumnRulesModal } from '@/components/ColumnRulesModal'
 import { ColumnRules, Rule } from '@/modules/boards/interfaces/board.interface'
 import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
-
+import { Badge } from '@/components/ui/badge'
 const dateFormatter = DateFormatter.getInstance()
 
 export const BoardPage = () => {
@@ -39,6 +39,7 @@ export const BoardPage = () => {
     columnName: '',
     rules: undefined,
   })
+  const MAX_VISIBLE_LABELS = 3
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { over, active } = event
@@ -172,6 +173,35 @@ export const BoardPage = () => {
     }
   }
 
+  const getPriorityValues = (priority: string) => {
+    switch (priority) {
+      case 'LOW':
+        return {
+          textColor: 'text-green-500',
+          bgColor: 'bg-green-100',
+          text: 'Baja',
+        }
+      case 'MEDIUM':
+        return {
+          textColor: 'text-yellow-500',
+          bgColor: 'bg-yellow-100',
+          text: 'Media',
+        }
+      case 'HIGH':
+        return {
+          textColor: 'text-red-500',
+          bgColor: 'bg-red-100',
+          text: 'Alta',
+        }
+      default:
+        return {
+          textColor: 'text-muted-foreground',
+          bgColor: 'bg-muted-foreground/10',
+          text: 'Sin prioridad',
+        }
+    }
+  }
+
   return (
     <>
       <KanbanProvider onDragEnd={handleDragEnd} className="p-4">
@@ -201,6 +231,23 @@ export const BoardPage = () => {
                         <div className="flex flex-col gap-1">
                           <p className="m-0 flex-1 font-medium text-sm">{card.name}</p>
                           <p className="m-0 text-muted-foreground text-xs">{card.description}</p>
+                          <Badge
+                            className={`m-0 text-xs ${getPriorityValues(card.priority || '').textColor} ${getPriorityValues(card.priority || '').bgColor} rounded-md px-2 py-1 font-bold w-fit my-2`}
+                          >
+                            {getPriorityValues(card.priority || '').text}
+                          </Badge>
+                          <div className="flex flex-wrap gap-2">
+                            {card.labels?.slice(0, MAX_VISIBLE_LABELS).map((label) => (
+                              <Badge key={label} variant="outline">
+                                {label}
+                              </Badge>
+                            ))}
+                            {card.labels && card.labels.length > MAX_VISIBLE_LABELS && (
+                              <Badge variant="outline" className="cursor-default">
+                                +{card.labels.length - MAX_VISIBLE_LABELS}
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <div className="flex flex-col items-start gap-1">

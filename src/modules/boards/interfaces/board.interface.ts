@@ -42,6 +42,7 @@ export interface BoardColumnCard {
   createdAt: string
   updatedAt: string
   priority?: string
+  labels?: string[]
   description?: string
   history?: BoardColumnCardHistory[]
   comments?: BoardColumnCardComment[]
@@ -54,12 +55,15 @@ export class UpdateBoardColumnCardDto {
   description?: string
   columnId?: string
   priority?: string
+  labels?: string[]
+
   constructor(card: BoardColumnCard) {
     this.name = card.name
     this.customerId = card.customer?.id
     this.dueDate = card.dueDate
     this.description = card.description
     this.priority = card.priority
+    this.labels = card.labels
   }
 }
 

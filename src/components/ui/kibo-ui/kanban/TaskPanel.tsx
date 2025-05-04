@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { CalendarIcon, Search, Send, Pencil, Trash2 } from 'lucide-react'
+import { CalendarIcon, Search, Send, Pencil, Trash2, Plus, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
   HistoryActionType,
@@ -22,7 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useCard } from '@/modules/boards/hooks/useCard'
 import { ChangesFormatter, HistoryChanges } from '@/lib/changes-formatter'
 import { useComment } from '@/modules/boards/hooks/useComment'
-
+import { Badge } from '@/components/ui/badge'
 const dateFormatter = DateFormatter.getInstance()
 const changesFormatter = ChangesFormatter.getInstance()
 
@@ -44,6 +44,8 @@ export const TaskPanel = ({ cardId, isOpen, onClose }: TaskPanelProps) => {
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null)
   const [editedCommentContent, setEditedCommentContent] = useState('')
   const { customersData } = useCustomers({ search: searchQuery })
+  const [newLabel, setNewLabel] = useState('')
+  const MAX_VISIBLE_LABELS = 3
 
   useEffect(() => {
     setEditedCard(card || null)
@@ -200,6 +202,37 @@ export const TaskPanel = ({ cardId, isOpen, onClose }: TaskPanelProps) => {
     }))
   }
 
+  const handleAddLabel = () => {
+    if (!newLabel.trim() || !editedCard) return
+
+    const updatedLabels = [...(editedCard.labels || []), newLabel.trim()]
+
+    setEditedCard((prev) => ({
+      ...prev!,
+      labels: updatedLabels,
+    }))
+
+    setNewLabel('')
+  }
+
+  const handleRemoveLabel = (labelToRemove: string) => {
+    if (!editedCard) return
+
+    const updatedLabels = editedCard.labels?.filter((label) => label !== labelToRemove) || []
+
+    setEditedCard((prev) => ({
+      ...prev!,
+      labels: updatedLabels,
+    }))
+  }
+
+  const handleLabelKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && newLabel.trim()) {
+      e.preventDefault()
+      handleAddLabel()
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-50">
       {/* Overlay */}
@@ -332,6 +365,70 @@ export const TaskPanel = ({ cardId, isOpen, onClose }: TaskPanelProps) => {
                       </SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+
+                {/* Labels */}
+                <div className="grid grid-cols-3 gap-4 items-center">
+                  <Label className="font-normal">Etiquetas</Label>
+                  <div className="col-span-2 space-y-2">
+                    <div className="flex flex-wrap gap-2">
+                      {editedCard?.labels?.slice(0, MAX_VISIBLE_LABELS).map((label) => (
+                        <Badge key={label} variant="outline" className="flex items-center gap-1 py-1">
+                          {label}
+                          <button
+                            onClick={() => handleRemoveLabel(label)}
+                            className="ml-1 h-4 w-4 rounded-full hover:bg-muted flex items-center justify-center"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </Badge>
+                      ))}
+                      {editedCard?.labels && editedCard.labels.length > MAX_VISIBLE_LABELS && (
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Badge variant="outline" className="cursor-pointer">
+                              +{editedCard.labels.length - MAX_VISIBLE_LABELS} más
+                            </Badge>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-2" align="start">
+                            <div className="flex flex-col gap-2">
+                              {editedCard.labels.slice(MAX_VISIBLE_LABELS).map((label) => (
+                                <div key={label} className="flex items-center justify-between gap-2">
+                                  <span>{label}</span>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => handleRemoveLabel(label)}
+                                    className="h-6 w-6 p-0"
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <Input
+                        value={newLabel}
+                        onChange={(e) => setNewLabel(e.target.value)}
+                        onKeyDown={handleLabelKeyDown}
+                        placeholder="Nueva etiqueta..."
+                        className="h-8"
+                      />
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={handleAddLabel}
+                        disabled={!newLabel.trim()}
+                        className="h-8 px-2"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
