@@ -14,7 +14,7 @@ export const authService = {
     return response.data
   },
 
-  updateUser: async (user: IUser): Promise<IAuthResponse> => {
+  updateUser: async (user: Omit<IUser, 'phone'>): Promise<IAuthResponse> => {
     const { id, phoneVerified, ...userWithoutId } = user
 
     const response = await httpClient.put<IAuthResponse>(`${BASE_URL}/user`, {

@@ -17,7 +17,7 @@ interface AuthState {
   setError: (error: string | null) => void
   setLoading: (isLoading: boolean) => void
   getUser: () => Promise<void>
-  updateUser: (user: IUser) => Promise<void>
+  updateUser: (user: Omit<IUser, 'phone'>) => Promise<void>
   verifyPhone: (data: IVerifyPhoneDto) => Promise<void>
 }
 
@@ -112,7 +112,7 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      updateUser: async (user: IUser) => {
+      updateUser: async (user: Omit<IUser, 'phone'>) => {
         try {
           set({ isLoading: true, error: null })
           const response = await authService.updateUser(user)

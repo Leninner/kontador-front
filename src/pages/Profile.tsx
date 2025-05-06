@@ -44,7 +44,9 @@ export function ProfilePage() {
 
     setIsSubmitting(true)
     try {
-      await updateUser({ ...user, ...formData })
+      const { phone, ...rest } = user
+      console.log('rest', phone)
+      await updateUser({ ...rest, ...formData })
     } finally {
       setIsSubmitting(false)
     }
